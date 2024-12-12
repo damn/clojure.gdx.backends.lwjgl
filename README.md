@@ -1,2 +1,31 @@
 # clojure.gdx.backends.lwjgl3
 Clojure API for the libgdx lwjgl3 (desktop) backend
+
+# Usage
+
+* First you need to import libgdx dependency, this library will only bring in the dependencies of the backend, with leiningen this would be:
+
+```clojure
+:repositories [["jitpack" "https://jitpack.io"]]
+:dependencies [[com.badlogicgames.gdx/gdx                   "1.13.0"]
+               [com.github.damn/clojure.gdx.backends.lwjgl3 "1.13.0-0.1"]]
+```
+
+* Then just start the application by passing the config parameters and the lifecycle object.
+
+```clojure
+(ns my.application
+  (:require [clojure.gdx.backends.lwjgl3 :as lwjgl3]))
+
+(defn -main []
+  (lwjgl3/start {:title "Hello World"
+                 :width 800
+                 :height 600
+                 :fps 60
+                 :taskbar-icon "icon.png"} ; optional
+                (reify lwjgl3/Application
+                  (create [_])
+                  (dispose [_])
+                  (render [_])
+                  (resize [_ w h]))))
+```
