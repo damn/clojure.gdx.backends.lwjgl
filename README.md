@@ -5,7 +5,7 @@ Clojure API for the libgdx lwjgl3 (desktop) backend
 
 * Configures GLFW correctly for MacOS so the JVM argument `-XstartOnFirstThread` does _not_ have to be set.
 
-* Option for setting taskbar-icon. This sets the dock-icon got mac and is not supported by the original library.
+* Option for setting taskbar-icon. This sets the dock-icon on mac and is not supported by the original library.
 
 # Usage
 
