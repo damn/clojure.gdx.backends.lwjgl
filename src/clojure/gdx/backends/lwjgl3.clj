@@ -1,5 +1,6 @@
 (ns clojure.gdx.backends.lwjgl3
-  (:require [clojure.java.io :as io])
+  (:require [clojure.gdx.interop :as interop]
+            [clojure.java.io :as io])
   (:import (com.badlogic.gdx ApplicationAdapter)
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)
            (com.badlogic.gdx.utils SharedLibraryLoader)
@@ -31,10 +32,15 @@
 
 (defn- gdx-application [listener]
   (proxy [ApplicationAdapter] []
-    (create  []    (create  listener))
-    (dispose []    (dispose listener))
-    (render  []    (render  listener))
-    (resize  [w h] (resize  listener w h))))
+    (create []
+      (interop/bind-clojure.gdx-components)
+      (create listener))
+    (dispose []
+      (dispose listener))
+    (render []
+      (render listener))
+    (resize [w h]
+      (resize listener w h))))
 
 (defn start [{:keys [taskbar-icon] :as config} application]
   (when taskbar-icon
