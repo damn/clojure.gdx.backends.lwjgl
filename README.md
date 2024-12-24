@@ -24,7 +24,7 @@ Clojure API for the libgdx lwjgl3 (desktop) backend
                  :fps 60
                  :taskbar-icon "icon.png"} ; optional
                 (reify lwjgl3/Application
-                  (create [_])
+                  (create [_ gdx-state])
                   (dispose [_])
                   (render [_])
                   (resize [_ w h]))))
