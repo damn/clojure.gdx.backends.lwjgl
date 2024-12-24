@@ -1,6 +1,12 @@
 # clojure.gdx.backends.lwjgl3
 Clojure API for the libgdx lwjgl3 (desktop) backend
 
+# Features
+
+* Configures GLFW correctly for MacOS so the JVM argument `-XstartOnFirstThread` does _not_ have to be set.
+
+* Option for setting taskbar-icon. This sets the dock-icon on mac and is not supported by the original library.
+
 # Usage
 
 * First you need to import libgdx dependency, this library will only bring in the dependencies of the backend, with leiningen this would be:
