@@ -1,4 +1,4 @@
-(ns clojure.gdx.backends.lwjgl3
+(ns clojure.gdx.lwjgl
   (:require [clojure.java.io :as io])
   (:import (com.badlogic.gdx ApplicationAdapter)
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application Lwjgl3ApplicationConfiguration)

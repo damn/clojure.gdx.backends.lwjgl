@@ -1,4 +1,5 @@
-# clojure.gdx.backends.lwjgl3
+# clojure.gdx.lwjgl
+
 Clojure API for the libgdx lwjgl3 (desktop) backend
 
 # Features
@@ -21,17 +22,23 @@ Clojure API for the libgdx lwjgl3 (desktop) backend
 
 ```clojure
 (ns my.application
-  (:require [clojure.gdx.backends.lwjgl3 :as lwjgl3]))
+  (:require [clojure.gdx.lwjgl :as lwjgl]))
 
 (defn -main []
-  (lwjgl3/start {:title "Hello World"
+  (lwjgl/start {:title "Hello World"
                  :width 800
                  :height 600
                  :fps 60
                  :taskbar-icon "icon.png"} ; optional
-                (reify lwjgl3/Application
+                (reify lwjgl/Application
                   (create [_])
                   (dispose [_])
                   (render [_])
                   (resize [_ w h]))))
 ```
+
+; TODO stupid readme code ! fails ! needs to be a runnable code not shit like that
+
+also all the 'features' bla bla bla is just stupid
+
+code is only the API that's it.
