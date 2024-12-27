@@ -36,9 +36,3 @@ Clojure API for the libgdx lwjgl3 (desktop) backend
                   (render [_])
                   (resize [_ w h]))))
 ```
-
-; TODO stupid readme code ! fails ! needs to be a runnable code not shit like that
-
-also all the 'features' bla bla bla is just stupid
-
-code is only the API that's it.
