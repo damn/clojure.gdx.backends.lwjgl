@@ -1,7 +1,11 @@
-(defproject clojure.gdx.lwjgl "1.13.0-0.1"
+(def libgdx-version "1.13.1")
+
+(defproject clojure.gdx.backends.lwjgl "1.13.0-0.1"
   :dependencies [[org.clojure/clojure "1.12.0"]
-                 [com.badlogicgames.gdx/gdx-platform       "1.13.0" :classifier "natives-desktop"]
-                 [com.badlogicgames.gdx/gdx-backend-lwjgl3 "1.13.0"]]
+                 [com.badlogicgames.gdx/gdx                ~libgdx-version]
+                 [com.badlogicgames.gdx/gdx-platform       ~libgdx-version :classifier "natives-desktop"]
+                 [com.badlogicgames.gdx/gdx-backend-lwjgl3 ~libgdx-version]
+                 [clojure.gdx.dev-loop "-SNAPSHOT"]]
   :plugins [[lein-codox "0.10.8"]]
-  :codox {:source-uri "https://github.com/damn/clojure.gdx.lwjgl/blob/main/{filepath}#L{line}"
+  :codox {:source-uri "https://github.com/damn/clojure.gdx.backends.lwjgl/blob/main/{filepath}#L{line}"
           :metadata {:doc/format :markdown}})
