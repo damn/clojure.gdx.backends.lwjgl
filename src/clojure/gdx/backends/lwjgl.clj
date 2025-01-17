@@ -1,378 +1,236 @@
+; TODO tests
 (ns clojure.gdx.backends.lwjgl
-  (:require [clojure.java.io :as io])
-  (:import (com.badlogic.gdx Application
-                             ApplicationAdapter
-                             Audio
-                             Files
-                             Gdx
-                             Graphics
-                             Input
-                             LifecycleListener
-                             Net
-                             Preferences)
-           (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
+  ; * `Audio` / `Music` Have to become links !
+  ; * TODO what about 'type' of the required input?, boolean,e tc.
+  "
+
+  | Key                | Description | Default value |
+  | --------           | -------     | -------       |
+  | `:audio`    | Sets the audio device configuration.  <br> Parameters: <br> simultaneousSources - the maximum number of sources that can be played simultaniously (default 16) <br> bufferSize - the audio device buffer size in samples (default 512) <br> bufferCount - the audio device buffer count (default 9)     | |
+  | `:disable-audio?`  | Whether to disable audio or not. If set to true, the returned audio class instances like Audio or Music will be mock implementations.    | `false` |
+  | `:max-net-threads` | Sets the maximum number of threads to use for network requests.     | `Integer/MAX_VALUE` |
+  | `:opengl-emulation`    |  Sets which OpenGL version to use to emulate OpenGL ES. If the given major/minor version is not supported, the backend falls back to OpenGL ES 2.0 emulation through OpenGL 2.0. The default parameters for major and minor should be 3 and 2 respectively to be compatible with Mac OS X. Specifying major version 4 and minor version 2 will ensure that all OpenGL ES 3.0 features are supported. Note however that Mac OS X does only support 3.2. <br> <br> Parameters: <br> glVersion - which OpenGL ES emulation version to use <br> gles3MajorVersion - OpenGL ES major version, use 3 as default <br> gles3MinorVersion - OpenGL ES minor version, use 2 as default <br> See Also: <br> LWJGL OSX ContextAttribs note   |
+  | `:backbuffer`    | Sets the bit depth of the color, depth and stencil buffer as well as multi-sampling. <br> <br> Parameters: <br> r - red bits (default 8) <br> g - green bits (default 8) <br> b - blue bits (default 8) <br> a - alpha bits (default 8) <br> depth - depth bits (default 16) <br> stencil - stencil bits (default 0) <br> samples - MSAA samples (default 0)   |
+  | `:transparent-framebuffer`    | Set transparent window hint. Results may vary on different OS and GPUs. Usage with the ANGLE backend is less consistent.    |
+  | `:idle-fps`    | Sets the polling rate during idle time in non-continuous rendering mode. Must be positive. Default is 60.    |
+  | `:foreground-fps`    | Sets the target framerate for the application. The CPU sleeps as needed. Must be positive. Use 0 to never sleep. Default is 0.    |
+  | `:pause-when-minimized?`    | Sets whether to pause the application ApplicationListener.pause() and fire LifecycleListener.pause()/LifecycleListener.resume() events on when window is minimized/restored.    |
+  | `:pause-when-lost-focus?`    | Sets whether to pause the application ApplicationListener.pause() and fire LifecycleListener.pause()/LifecycleListener.resume() events on when window loses/gains focus.    |
+  | `:preferences`    | Sets the directory where Preferences will be stored, as well as the file type to be used to store them. Defaults to \"$USER_HOME/.prefs/\" and Files.FileType.External.    |
+  | `:hdpi-mode`    | Defines how HDPI monitors are handled. Operating systems may have a per-monitor HDPI scale setting. The operating system may report window width/height and mouse coordinates in a logical coordinate system at a lower resolution than the actual physical resolution. This setting allows you to specify whether you want to work in logical or raw pixel units. See HdpiMode for more information. Note that some OpenGL functions like GL20.glViewport(int, int, int, int) and GL20.glScissor(int, int, int, int) require raw pixel units. Use HdpiUtils to help with the conversion if HdpiMode is set to HdpiMode.Logical. Defaults to HdpiMode.Logical.    |
+  | `:gl-debug-output?`    | Enables use of OpenGL debug message callbacks. If not supported by the core GL driver (since GL 4.3), this uses the KHR_debug, ARB_debug_output or AMD_debug_output extension if available. By default, debug messages with NOTIFICATION severity are disabled to avoid log spam. You can call with System.err to output to the \"standard\" error output stream. Use Lwjgl3Application.setGLDebugMessageControl(Lwjgl3Application.GLDebugMessageSeverity, boolean) to enable or disable other severity debug levels.    |
+  | `:hdpi-mode`    | $420    |
+  | window config | | |
+  | `:vsync?` | Sets whether to use vsync. This setting can be changed anytime at runtime via {@link Graphics#setVSync(boolean)}. <br> For multi-window applications, only one (the main) window should enable vsync. Otherwise, every window will wait for the vertical blank on swap individually, effectively cutting the frame rate to (refreshRate / numberOfWindows) | `true`
+
+  # Window Configuration
+
+  * `:initial-visible?` - whether the window will be visible on creation. (default true)
+
+  * `:title`
+
+  * `:windowed-mode`
+
+  * `:resizable?`
+
+  * `:decorated?`
+
+  * `:maximized?`
+  "
+  (:import (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
                                              Lwjgl3ApplicationConfiguration
-                                             Lwjgl3ApplicationConfiguration$GLEmulation
-                                             Lwjgl3ApplicationLogger
-                                             Lwjgl3Clipboard
-                                             Lwjgl3NativesLoader
-                                             Lwjgl3Net
-                                             Sync)
-           (com.badlogic.gdx.backends.lwjgl3.audio Lwjgl3Audio
-                                                   OpenALLwjgl3Audio)
-           (com.badlogic.gdx.backends.lwjgl3.audio.mock MockAudio)
-           (com.badlogic.gdx.graphics.glutils GLVersion)
-           (com.badlogic.gdx.math GridPoint2)
-           (com.badlogic.gdx.utils Array
-                                   Clipboard
-                                   GdxRuntimeException
-                                   ObjectMap
-                                   Os
-                                   SharedLibraryLoader)
+                                             Lwjgl3ApplicationConfiguration$GLEmulation)))
 
-           (java.awt Taskbar Toolkit)
-           (java.io File PrintStream)
-           (java.nio IntBuffer)
-           (org.lwjgl BufferUtils)
-           (org.lwjgl.glfw GLFW
-                           GLFWErrorCallback)
-           (org.lwjgl.opengl KHRDebug
-                             GLUtil
-                             GLCapabilities
-                             GL43
-                             GL11
-                             GL
-                             ARBDebugOutput
-                             AMDDebugOutput)
-           (org.lwjgl.system Callback
-                             Configuration)))
+(defmulti ^:private set-option!
+  (fn [k _v _config]
+    k))
 
-(defn create-window [listener lifecycleListeners config application]
-  {:application application
-   :listener listener
-   :lifecycleListeners lifecycleListeners
-   :windowListener (:windowListener config)
-   :config config
-   :tmpBuffer  (BufferUtils/createIntBuffer 1)
-   :tmpBuffer2 (BufferUtils/createIntBuffer 1)})
+; TODO option w/o config also possible -> taking default then
+(defn application
+  "`com.badlogic.gdx.ApplicationListener`"
+  ([listener]
+   (Lwjgl3Application. listener))
+  ([listener config]
+   (Lwjgl3Application. listener
+                       (let [options config
+                             config (Lwjgl3ApplicationConfiguration.)]
+                         (doseq [[k v] options]
+                           (set-option! k v config))
+                         config))))
 
-(defn- initialize-glfw [error-callback]
-  (Lwjgl3NativesLoader/load)
-  (GLFW/glfwSetErrorCallback error-callback)
-  (when (= SharedLibraryLoader/os Os/MacOsX)
-    (GLFW/glfwInitHint GLFW/GLFW_ANGLE_PLATFORM_TYPE,
-                       GLFW/GLFW_ANGLE_PLATFORM_TYPE_METAL))
-  (GLFW/glfwInitHint GLFW/GLFW_JOYSTICK_HAT_BUTTONS,
-                     GLFW/GLFW_FALSE)
-  (when-not (GLFW/glfwInit)
-    (throw (GdxRuntimeException. "Unable to initialize GLFW"))))
+(defn window
+  "Creates a new Lwjgl3Window using the provided listener and Lwjgl3WindowConfiguration. This function only just instantiates a Lwjgl3Window and returns immediately. The actual window creation is postponed with Application.postRunnable(Runnable) until after all existing windows are updated."
+  [application listener window-config]
+  (Lwjgl3Application/.newWindow application
+                                listener
 
-(defn- load-angle []
-  (try
-    (let [angle-loader (Class/forName "com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader")]
-      (.invoke (.getMethod angle-loader "load") angle-loader))
-    ; or clojure does reflection by itself??
-    ; can do like this  then ?
-    #_(com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader/load)
-    (catch ClassNotFoundException e
-      nil); ?? why
-    (catch Throwable t
-      (throw (GdxRuntimeException. "Couldn't load ANGLE." t)))))
+                                ; TODO build window config!
+                                ; => no application config settings !
+                                ; so 2 calls?
+                                window-config))
 
-(defn post-load-angle []
-  (try
-   (let [angle-loader (Class/forName "com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader")
-         load-method (.getMethod angle-loader "postGlfwInit")]
-     (.invoke load-method angle-loader))
-   (catch ClassNotFoundException _
-     nil)
-   (catch Throwable t
-     (throw (GdxRuntimeException. "Couldn't load ANGLE." t)))))
+(defn set-gl-debug-message-control
+  "Enables or disables GL debug messages for the specified severity level. Returns false if the severity level could not be set (e.g. the NOTIFICATION level is not supported by the ARB and AMD extensions). See Lwjgl3ApplicationConfiguration.enableGLDebugOutput(boolean, PrintStream)"
+  [severity enabled?]
+  (Lwjgl3Application/setGLDebugMessageControl severity #_(k->severity severity)
+                                              (boolean enabled?)))
 
-(defn create-glfw-window [config shared-context-window]
-  (GLFW/glfwDefaultWindowHints)
-  (GLFW/glfwWindowHint GLFW/GLFW_VISIBLE GLFW/GLFW_FALSE)
-  (GLFW/glfwWindowHint GLFW/GLFW_RESIZABLE (if (:window-resizable config) GLFW/GLFW_TRUE GLFW/GLFW_FALSE))
-  (GLFW/glfwWindowHint GLFW/GLFW_MAXIMIZED (if (:window-maximized config) GLFW/GLFW_TRUE GLFW/GLFW_FALSE))
-  (GLFW/glfwWindowHint GLFW/GLFW_AUTO_ICONIFY (if (:auto-iconify config) GLFW/GLFW_TRUE GLFW/GLFW_FALSE))
-  (GLFW/glfwWindowHint GLFW/GLFW_RED_BITS (:r config))
-  (GLFW/glfwWindowHint GLFW/GLFW_GREEN_BITS (:g config))
-  (GLFW/glfwWindowHint GLFW/GLFW_BLUE_BITS (:b config))
-  (GLFW/glfwWindowHint GLFW/GLFW_ALPHA_BITS (:a config))
-  (GLFW/glfwWindowHint GLFW/GLFW_STENCIL_BITS (:stencil config))
-  (GLFW/glfwWindowHint GLFW/GLFW_DEPTH_BITS (:depth config))
-  (GLFW/glfwWindowHint GLFW/GLFW_SAMPLES (:samples config))
+(defn display-mode
+  "the currently active Graphics.DisplayMode of the primary or the given monitor"
+  ([monitor]
+   (Lwjgl3ApplicationConfiguration/getDisplayMode monitor))
+  ([]
+   (Lwjgl3ApplicationConfiguration/getDisplayMode)))
 
-  ;; OpenGL context and API configuration
-  (cond
-    (#{:GL30 :GL31 :GL32} (:gl-emulation config))
-    (do
-      (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MAJOR (:gles30-context-major-version config))
-      (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MINOR (:gles30-context-minor-version config))
-      (when (= SharedLibraryLoader/os Os/MacOsX)
-        (GLFW/glfwWindowHint GLFW/GLFW_OPENGL_FORWARD_COMPAT GLFW/GLFW_TRUE)
-        (GLFW/glfwWindowHint GLFW/GLFW_OPENGL_PROFILE GLFW/GLFW_OPENGL_CORE_PROFILE)))
+(defn display-modes
+  "the available Graphics.DisplayModes of the primary or the given monitor"
+  ([monitor]
+   (Lwjgl3ApplicationConfiguration/getDisplayModes monitor))
+  ([]
+   (Lwjgl3ApplicationConfiguration/getDisplayModes)))
 
-    (= :ANGLE_GLES20 (:gl-emulation config))
-    (do
-      (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_CREATION_API GLFW/GLFW_EGL_CONTEXT_API)
-      (GLFW/glfwWindowHint GLFW/GLFW_CLIENT_API GLFW/GLFW_OPENGL_ES_API)
-      (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MAJOR 2)
-      (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MINOR 0)))
+(comment
+ (first (display-modes))
+ )
 
-  ;; Transparent framebuffer
-  (when (:transparent-framebuffer config)
-    (GLFW/glfwWindowHint GLFW/GLFW_TRANSPARENT_FRAMEBUFFER GLFW/GLFW_TRUE))
+(defn primary-monitor
+  "the primary Graphics.Monitor"
+  []
+  (Lwjgl3ApplicationConfiguration/getPrimaryMonitor))
 
-  ;; Debugging
-  (when (:debug config)
-    (GLFW/glfwWindowHint GLFW/GLFW_OPENGL_DEBUG_CONTEXT GLFW/GLFW_TRUE))
+(defn monitors
+  "the connected Graphics.Monitors"
+  []
+  (Lwjgl3ApplicationConfiguration/getMonitors))
 
-  ;; Create window
-  (let [window-handle
-        (if (:fullscreen-mode config)
-          (do
-            (GLFW/glfwWindowHint GLFW/GLFW_REFRESH_RATE (:refresh-rate (:fullscreen-mode config)))
-            (GLFW/glfwCreateWindow (:width (:fullscreen-mode config))
-                                    (:height (:fullscreen-mode config))
-                                    (:title config)
-                                    (:monitor (:fullscreen-mode config))
-                                    shared-context-window))
-          (do
-            (GLFW/glfwWindowHint GLFW/GLFW_DECORATED (if (:window-decorated config) GLFW/GLFW_TRUE GLFW/GLFW_FALSE))
-            (GLFW/glfwCreateWindow (:window-width config)
-                                    (:window-height config)
-                                    (:title config)
-                                    0
-                                    shared-context-window)))]
-    (when (zero? window-handle)
-      (throw (GdxRuntimeException. "Couldn't create window")))
+(defn- k->glversion [gl-version]
+  (case gl-version
+    ; TODO in the first case need to draw in the library (error cant find lib)
+    :angle-gles20 Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20
+    :gl20         Lwjgl3ApplicationConfiguration$GLEmulation/GL20
+    :gl30         Lwjgl3ApplicationConfiguration$GLEmulation/GL30
 
-    ;; Set window size limits
-    (Lwjgl3Window/setSizeLimits window-handle
-                                (:window-min-width config)
-                                (:window-min-height config)
-                                (:window-max-width config)
-                                (:window-max-height config))
+    ; java.lang.IllegalArgumentException: Error compiling shader: Vertex shader
+    :gl31         Lwjgl3ApplicationConfiguration$GLEmulation/GL31
 
-    ;; Configure window position
-    (when (and (nil? (:fullscreen-mode config)) (= GLFW/glfwGetPlatform GLFW/GLFW_PLATFORM_WAYLAND))
-      (if (and (= -1 (:window-x config)) (= -1 (:window-y config)))
-        (let [new-pos (Lwjgl3ApplicationConfiguration/calculateCenteredWindowPosition
-                        (Lwjgl3ApplicationConfiguration/toLwjgl3Monitor GLFW/glfwGetPrimaryMonitor)
-                        (:window-width config)
-                        (:window-height config))]
-          (GLFW/glfwSetWindowPos window-handle (:x new-pos) (:y new-pos)))
-        (GLFW/glfwSetWindowPos window-handle (:window-x config) (:window-y config))))
+    ; shader compile error ...
+    :gl32         Lwjgl3ApplicationConfiguration$GLEmulation/GL32))
 
-    ;; Maximize window if configured
-    (when (:window-maximized config)
-      (GLFW/glfwMaximizeWindow window-handle))
+(defmethod set-option! :initial-visible? [_ v config]
+  (.setInitialVisible config (boolean v)))
 
-    ;; Set window icon
-    (when (:window-icon-paths config)
-      (Lwjgl3Window/setIcon window-handle (:window-icon-paths config) (:window-icon-file-type config)))
+(defmethod set-option! :disable-audio? [_ v config]
+  (.disableAudio      config (boolean v)))
 
-    ;; Make context current and configure VSync
-    (GLFW/glfwMakeContextCurrent window-handle)
-    (GLFW/glfwSwapInterval (if (:v-sync-enabled config) 1 0))
+(defmethod set-option! :max-net-threads [_ v config]
+  (.setMaxNetThreads  config (int v)))
 
-    ;; Initialize OpenGL
-    (if (= :ANGLE_GLES20 (:gl-emulation config))
-      (try
-        (let [gles (Class/forName "org.lwjgl.opengles.GLES")
-              create-capabilities (.getMethod gles "createCapabilities")]
-          (.invoke create-capabilities gles))
-        (catch Throwable e
-          (throw (GdxRuntimeException. "Couldn't initialize GLES" e))))
-      (GL/createCapabilities))
+(defmethod set-option! :audio [_ v config]
+  (.setAudioConfig    config
+                   (int (:simultaneousSources v))
+                   (int (:buffer-size         v))
+                   (int (:buffer-count        v))))
 
-    ;; Ensure OpenGL version compatibility
-    (initiateGL (= :ANGLE_GLES20 (:gl-emulation config)))
-    (when-not (glVersion/isVersionEqualToOrHigher 2 0)
-      (throw (GdxRuntimeException. (str "OpenGL 2.0 or higher with the FBO extension is required. OpenGL version: "
-                                        (glVersion/getVersionString) "\n" (glVersion/getDebugVersionString)))))
+(defmethod set-option! :opengl-emulation [_ v config]
+  (.setOpenGLEmulation config
+                       (k->glversion (:gl-version v))
+                       (int (:gles-3-major-version v))
+                       (int (:gles-3-minor-version v))))
 
-    ;; Ensure FBO support
-    (when (and (not= :ANGLE_GLES20 (:gl-emulation config)) (not (supportsFBO)))
-      (throw (GdxRuntimeException. (str "OpenGL 2.0 or higher with the FBO extension is required. OpenGL version: "
-                                        (glVersion/getVersionString) ", FBO extension: false\n"
-                                        (glVersion/getDebugVersionString)))))
+(defmethod set-option! :backbuffer [_ v config]
+  (.setBackBufferConfig config
+                        (int (:r       v))
+                        (int (:g       v))
+                        (int (:b       v))
+                        (int (:a       v))
+                        (int (:depth   v))
+                        (int (:stencil v))
+                        (int (:samples v))))
 
-    ;; Set up debug output
-    (when (:debug config)
-      (when (= :ANGLE_GLES20 (:gl-emulation config))
-        (throw (IllegalStateException. "ANGLE cannot be used with GL debug output enabled")))
-      (let [callback (GLUtil/setupDebugMessageCallback (:debug-stream config))]
-        (set! glDebugCallback callback)
-        (setGLDebugMessageControl GLDebugMessageSeverity/NOTIFICATION false)))
+(defmethod set-option! :transparent-framebuffer [_ v config]
+  (.setTransparentFramebuffer config (boolean v)))
 
-    window-handle))
+(defmethod set-option! :idle-fps [_ v config]
+  (.setIdleFPS config (int v)))
 
-(defn createWindow2 [window, config, sharedContext]
-  (let [window-handle (create-glfw-window config sharedContext)]
-    (.create window windowHandle)
-    (.setVisible window (:initial-visible? config))
-    (let [gl (.. window getGraphics gl20)]
-      (doseq [_ (range 2)]
-        (.glClearColor gl
-                       (:r config.initial-background-color)
-                       (:g config.initial-background-color)
-                       (:b config.initial-background-color)
-                       (:a config.initial-background-color))
-        (.glClear gl GL11/GL_COLOR_BUFFER_BIT)
-        (GLFW/glfwSwapBuffers window-handle)))
-    (when currentWindow
-      ;// the call above to createGlfwWindow switches the OpenGL context to the newly created window,
-      ;// ensure that the invariant "currentWindow is the window with the current active OpenGL context" holds
-      (.makeCurrent currentWindow)) ))
+(defmethod set-option! :foreground-fps [_ v config]
+  (.setForegroundFPS config (int v)))
 
-(defn createWindow1 [this config listener sharedContext]
-  (let [window (create-window listener lifecycleListeners config this)]
-    (if (zero? sharedContext)
-			; the main window is created immediately
-			(createWindow2 window, config, sharedContext)
-			; creation of additional windows is deferred to avoid GL context trouble
-      (post-runnable this (fn []
-                            (createWindow2 window config sharedContext)
-                            (.add windows window))))
-    window))
+(defmethod set-option! :pause-when-minimized? [_ v config]
+  (.setPauseWhenMinimized config (boolean v)))
 
-(defn main-loop []
-  (let [closed-windows (atom [])
-        running (atom true)]
-    (while (and @running (pos? (.size windows)))
-      ;; FIXME put it on a separate thread
-      (.update audio)
+(defmethod set-option! :pause-when-lost-focus? [_ v config]
+  (.setPauseWhenLostFocus config (boolean v)))
 
-      (let [have-windows-rendered (atom false)
-            target-framerate (atom -2)]
-        (reset! closed-windows [])
-        (doseq [window windows]
-          (when (not= current-window window)
-            (.makeCurrent window)
-            (set! current-window window))
-          (when (= @target-framerate -2)
-            (reset! target-framerate (.foregroundFPS (.getConfig window))))
-          (locking lifecycle-listeners
-            (swap! have-windows-rendered #(or % (.update window))))
-          (when (.shouldClose window)
-            (swap! closed-windows conj window)))
+#_(defmethod set-option! :preferences [_ v config]
+  (.setPreferencesConfig config
+                         (str (:directory v))
+                         ; com.badlogic.gdx.Files.FileType
+                         (k->filetype (:filetype v))))
 
-        (GLFW/glfwPollEvents)
+#_(defmethod set-option! :hdpi-mode [_ v config]
+  ; com.badlogic.gdx.graphics.glutils.HdpiMode
+  (.setHdpiMode config (k->hdpi-mode v)))
 
-        (let [should-request-rendering (atom false)]
-          (locking runnables
-            (reset! should-request-rendering (pos? (.size runnables)))
-            (.clear executed-runnables)
-            (.addAll executed-runnables runnables)
-            (.clear runnables))
-          (doseq [runnable executed-runnables]
-            (.run runnable))
-          (when @should-request-rendering
-            ; Must follow Runnables execution so changes done by Runnables are reflected
-            ; in the following render.
-            (doseq [window windows]
-              (when-not (.isContinuousRendering (.getGraphics window))
-                (.requestRendering window)))))
+#_(defmethod set-option! :gl-debug-output? [_ v config]
+  (.enableGLDebugOutput config
+                        (boolean (:enable? v))
+                        (->PrintStream (:debug-output-stream v))))
 
-        (doseq [closed-window @closed-windows]
-          (when (= (.size windows) 1)
-            ;; Lifecycle listener methods
-            (dotimes [i (dec (.size lifecycle-listeners)) -1]
-              (let [listener (.get lifecycle-listeners i)]
-                (.pause listener)
-                (.dispose listener)))
-            (.clear lifecycle-listeners))
-          (.dispose closed-window)
-          (.removeValue windows closed-window false))
+; TODO duplicated below
+(defmethod set-option! :title [_ v config]
+  (.setTitle config (str v)))
 
-        (if-not @have-windows-rendered
-          ;; Sleep when no rendering was requested
-          (try
-            (Thread/sleep (/ 1000 (.idleFPS config)))
-            (catch InterruptedException e
-              ;; ignore
-              nil))
-          (when (pos? @target-framerate)
-            (.sync sync @target-framerate)))))))
+(defmethod set-option! :windowed-mode [_ v config]
+  (.setWindowedMode config
+                    (int (:width v))
+                    (int (:height v))))
 
-(defn cleanup-windows []
-  (locking lifecycle-listeners
-    (doseq [lifecycle-listener lifecycle-listeners]
-      (.pause lifecycle-listener)
-      (.dispose lifecycle-listener)))
-  (doseq [window windows]
-    (.dispose window))
-  (.clear windows))
+(defmethod set-option! :resizable? [_ v config]
+  (.setResizable config (boolean v)))
 
-(defn cleanup []
-  (Lwjgl3Cursor/disposeSystemCursors)
-  (.dispose audio)
-  (.free error-callback)
-  (set! error-callback nil)
-  (when gl-debug-callback
-    (.free gl-debug-callback)
-    (set! gl-debug-callback nil))
-  (GLFW/glfwTerminate))
+(defmethod set-option! :decorated? [_ v config]
+  (.setDecorated config (boolean v)))
 
-(defn create [listener config]
-  (when (= SharedLibraryLoader/os Os/MacOsX)
-    (.set Configuration/GLFW_LIBRARY_NAME "glfw_async"))
-  (when (= (:gl-emulation config) :gl-emulation/angle-gles20)
-    (load-angle))
-  (let [application {:errorCallback (GLFWErrorCallback/createPrint System/err)
-                     :glVersion ; is create at add window - ( initiateGL)
-                     :glDebugCallback ; in createGlfw window
-                     :config config
-                     :windows (atom [])
-                     :currentWindow (atom nil)
-                     :audio (if (:disable-audio? config)
-                              (MockAudio.)
-                              (try (OpenALLwjgl3Audio. (:audioDeviceSimultaneousSources config)
-                                                       (:audioDeviceBufferCount         config)
-                                                       (:audioDeviceBufferSize          config))
-                                   (catch Throwable t
-                                     (.log this "Lwjgl3Application", "Couldn't initialize audio, disabling audio", t)
-                                     (MockAudio.))))
-                     :files (Lwjgl3Files.)
-                     :net (Lwjgl3Net. config)
-                     :preferences ; new ObjectMap<String, Preferences>();
-                     :clipboard (Lwjgl3Clipboard.)
-                     :logLevel Application/LOG_INFO
-                     :applicationLogger (Lwjgl3ApplicationLogger.)
-                     :running? true
-                     :runnables new Array<Runnable>()
-                     :executedRunnables new Array<Runnable>()
-                     :lifecycleListeners new Array<LifecycleListener>()
-                     :sync (Sync.)}]
-    (println "initialize glfw")
-    (initialize-glfw (:errorCallback application))
-    ; !!!!
+(defmethod set-option! :maximized? [_ v config]
+  (.setMaximized config (boolean v)))
 
-    ; (set! (.app Gdx) this)
-    ; (set! (.audio Gdx) (:audio this))
-    ; (set! (.files Gdx) (:files this))
-    ; (set! (.net Gdx)  (:net this))
+; Graphics.Monitor
+#_(defmethod set-option! :maximized-monitor [_ v config]
+  (.setMaximizedMonitor config ()))
 
-    ; !!!!
-    )
-  (let [window (createWindow1 this config listener 0)]
-    (when (= (:gl-emulation config) :gl-emulation/angle-gles20)
-      (post-load-angle))
-    (.add windows window))
-  (try
-   (main-loop this)
-   (cleanup-windows this)
-   (catch Throwable t
-     (if (instance? RuntimeException t) ; TODO check arg order right
-       (throw (RunTimeException. t))
-       (throw (GdxRuntimeException. t))))
-   (finally
-    (cleanup this))))
+(defmethod set-option! :auto-iconify? [_ v config]
+  (.setAutoIconify config (boolean v)))
 
-(defn -main []
-  (create (proxy [ApplicationAdapter] [])
-          {:config true}
-          )
-  )
+; (int x, int y)
+#_(defmethod set-option! :window-position [_ v config]
+  (.setWindowPosition config ()))
+
+;(int minWidth, int minHeight, int maxWidth, int maxHeight)
+#_(defmethod set-option! :window-size-limits? [_ v config]
+  (.setWindowSizeLimits config ()))
+
+; (String... filePaths)
+; (FileType fileType, String... filePaths)
+#_(defmethod set-option! :window-icon [_ v config]
+  (.setWindowIcon config ())) ; TODO multiple options
+
+; Lwjgl3WindowListener
+#_(defmethod set-option! :window-listener [_ v config]
+  (.setWindowListener config ()))
+
+; com.badlogic.gdx.Graphics$DisplayMode (the one you got ...)
+; or convert ?!
+(defmethod set-option! :fullscreen-mode [_ display-mode config]
+  (.setFullscreenMode config display-mode))
+
+(defmethod set-option! :title [_ v config]
+  (.setTitle config (str v)))
+
+(defmethod set-option! :initial-background-color [_ color config]
+  (.setInitialBackgroundColorer config color
+                                #_(->munge-color v)
+                                ))
+
+(defmethod set-option! :vsync? [_ v config]
+  (.useVsync config (boolean v)))
