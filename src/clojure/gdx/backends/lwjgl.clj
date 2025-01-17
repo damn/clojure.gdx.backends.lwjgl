@@ -37,7 +37,9 @@
 
   * `:maximized?`
   "
-  (:import (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
+  (:require [clojure.app :as app])
+  (:import (com.badlogic.gdx ApplicationListener)
+           (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
                                              Lwjgl3ApplicationConfiguration
                                              Lwjgl3ApplicationConfiguration$GLEmulation)))
 
@@ -45,13 +47,28 @@
   (fn [k _v _config]
     k))
 
+(defn- gdx-listener [listener]
+  (proxy [ApplicationListener] []
+    (create []
+      (app/create listener))
+    (dispose []
+      (app/dispose listener))
+    (pause []
+      (app/pause listener))
+    (render []
+      (app/render listener))
+    (resize [width height]
+      (app/resize listener width height))
+    (resume []
+      (app/resume listener))))
+
 ; TODO option w/o config also possible -> taking default then
 (defn application
   "`com.badlogic.gdx.ApplicationListener`"
   ([listener]
-   (Lwjgl3Application. listener))
+   (Lwjgl3Application. (gdx-listener listener)))
   ([listener config]
-   (Lwjgl3Application. listener
+   (Lwjgl3Application. (gdx-listener listener)
                        (let [options config
                              config (Lwjgl3ApplicationConfiguration.)]
                          (doseq [[k v] options]
