@@ -33,7 +33,7 @@
   | `:window-size-limits`       | Sets minimum and maximum size limits for the window. If the window is full screen or not resizable, these limits are ignored. The default for all four parameters is -1, which means unrestricted. | `` |
   | `:window-icon`              | Sets the icon that will be used in the window's title bar. Has no effect in macOS, which doesn't use window icons. | `` |
   | `:windowed-listener`        | Sets the {@link Lwjgl3WindowListener} which will be informed about iconficiation, focus loss and window close events. | `` |
-  | `:fullscreen-mode`          |  Sets the app to use fullscreen mode. Use the static methods like {@link Lwjgl3ApplicationConfiguration#getDisplayMode()} on
+  | `:fullscreen-mode`          |  Sets the app to use fullscreen mode. Use the static methods like {@link Lwjgl3ApplicationConfiguration#getDisplayMode()} on this class to enumerate connected monitors and their fullscreen display modes. |
   | `:title`                    | Sets the window title. If null, the application listener's class name is used.  | `` |
   | `:initial-background-color` | Sets the initial background color. Defaults to black.  | `` |
   | `:vsync?`                   | Sets whether to use vsync. This setting can be changed anytime at runtime via {@link Graphics#setVSync(boolean)}. For multi-window applications, only one (the main) window should enable vsync. Otherwise, every window will wait for the vertical blank on swap individually, effectively cutting the frame rate to (refreshRate / numberOfWindows). | `` |"
@@ -42,9 +42,63 @@
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
                                              Lwjgl3ApplicationConfiguration
                                              Lwjgl3ApplicationConfiguration$GLEmulation
-                                             Lwjgl3WindowConfiguration)))
+                                             Lwjgl3Graphics$Lwjgl3DisplayMode
+                                             Lwjgl3Graphics$Lwjgl3Monitor
+                                             Lwjgl3WindowConfiguration)
+           (java.lang.reflect Constructor)))
 
-(defn gdx-listener [listener]
+(defn- display-mode->map [^Lwjgl3Graphics$Lwjgl3DisplayMode display-mode]
+  {:width          (.width        display-mode)
+   :height         (.height       display-mode)
+   :refresh-rate   (.refreshRate  display-mode)
+   :bits-per-pixel (.bitsPerPixel display-mode)
+   :monitor-handle (.getMonitor   display-mode)})
+
+(defn- monitor->map [^Lwjgl3Graphics$Lwjgl3Monitor monitor]
+  {:virtual-x      (.virtualX         monitor)
+   :virtual-y      (.virtualY         monitor)
+   :name           (.name             monitor)
+   :monitor-handle (.getMonitorHandle monitor)})
+
+(defn- map->display-mode [{:keys [width height refresh-rate bits-per-pixel monitor-handle]}]
+  (let [constructor (.getDeclaredConstructor Lwjgl3Graphics$Lwjgl3DisplayMode
+                                             (into-array Class [Long/TYPE Integer/TYPE Integer/TYPE Integer/TYPE Integer/TYPE]))
+        _ (.setAccessible constructor true)]
+    (.newInstance constructor
+                  (into-array Object [monitor-handle width height refresh-rate bits-per-pixel]))))
+
+(defn- map->monitor [{:keys [virtual-x virtual-y name monitor-handle]}]
+  (let [constructor (.getDeclaredConstructor Lwjgl3Graphics$Lwjgl3Monitor
+                                             (into-array Class [Long/TYPE Integer/TYPE Integer/TYPE String]))
+        _ (.setAccessible constructor true)]
+    (.newInstance constructor
+                  (into-array Object [monitor-handle virtual-x virtual-y name]))))
+
+(defn display-mode
+  "The currently active display-mode of the primary or the given monitor."
+  ([monitor]
+   (display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayMode (map->monitor monitor))))
+  ([]
+   (display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayMode))))
+
+(defn display-modes
+  "The available display-modes of the primary or the given monitor."
+  ([monitor]
+   (map display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayModes (map->monitor monitor))))
+  ([]
+   (map display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayModes))))
+
+(defn primary-monitor
+  "the primary monitor."
+  []
+  (monitor->map (Lwjgl3ApplicationConfiguration/getPrimaryMonitor)))
+
+(defn monitors
+  "The connected monitors."
+  []
+  (map monitor->map (Lwjgl3ApplicationConfiguration/getMonitors)))
+
+(defn- gdx-listener [listener]
   (proxy [ApplicationListener] []
     (create []
       (app/create listener))
@@ -59,14 +113,96 @@
     (resume []
       (app/resume listener))))
 
-(defmulti ^:private set-option!
-  (fn [_object k _v]
-    k))
+(defn- k->glversion [gl-version]
+  (case gl-version
+    :angle-gles20 Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20
+    :gl20         Lwjgl3ApplicationConfiguration$GLEmulation/GL20
+    :gl30         Lwjgl3ApplicationConfiguration$GLEmulation/GL30
+    :gl31         Lwjgl3ApplicationConfiguration$GLEmulation/GL31
+    :gl32         Lwjgl3ApplicationConfiguration$GLEmulation/GL32))
 
-(defn- build-config [object options]
-  (doseq [[k v] options]
-    (set-option! object k v))
+(defn- set-window-config-key! [^Lwjgl3WindowConfiguration object k v]
+  (case k
+    :initial-visible? (.setInitialVisible object (boolean v))
+    :windowed-mode   (.setWindowedMode object
+                                       (int (:width v))
+                                       (int (:height v)))
+    :resizable? (.setResizable object (boolean v))
+    :decorated? (.setDecorated object (boolean v))
+    :maximized? (.setMaximized object (boolean v))
+    :maximized-monitor (.setMaximizedMonitor object (map->monitor v))
+    :auto-iconify? (.setAutoIconify object (boolean v))
+
+    ;:window-position (.setWindowPosition object ())
+
+    ;(int minWidth, int minHeight, int maxWidth, int maxHeight)
+    ;:window-size-limits (.setWindowSizeLimits object ())
+
+    ; (String... filePaths)
+    ; (FileType fileType, String... filePaths)
+    ;:window-icon (.setWindowIcon object ())
+
+    ;:window-listener (.setWindowListener object ())
+
+    ;:initial-background-color (.setInitialBackgroundColorer object color #_(->munge-color v))
+
+    :fullscreen-mode (.setFullscreenMode object (map->display-mode v))
+    :title (.setTitle object (str v))
+    :vsync? (.useVsync object (boolean v))))
+
+(defn- set-application-config-key! [^Lwjgl3ApplicationConfiguration object k v]
+  (case k
+    :audio (.setAudioConfig object
+                            (int (:simultaneous-sources v))
+                            (int (:buffer-size         v))
+                            (int (:buffer-count        v)))
+    :disable-audio? (.disableAudio object (boolean v))
+    :max-net-threads (.setMaxNetThreads object (int v))
+    :opengl-emulation (.setOpenGLEmulation object
+                                           (k->glversion (:gl-version v))
+                                           (int (:gles-3-major-version v))
+                                           (int (:gles-3-minor-version v)))
+    :backbuffer (.setBackBufferConfig object
+                                      (int (:r       v))
+                                      (int (:g       v))
+                                      (int (:b       v))
+                                      (int (:a       v))
+                                      (int (:depth   v))
+                                      (int (:stencil v))
+                                      (int (:samples v)))
+    :transparent-framebuffer (.setTransparentFramebuffer object (boolean v))
+    :idle-fps (.setIdleFPS object (int v))
+    :foreground-fps (.setForegroundFPS object (int v))
+    :pause-when-minimized? (.setPauseWhenMinimized object (boolean v))
+    :pause-when-lost-focus? (.setPauseWhenLostFocus object (boolean v))
+
+    #_(defmethod set-option! :preferences [object _ v]
+        (.setPreferencesConfig object
+                               (str (:directory v))
+                               ; com.badlogic.gdx.Files.FileType
+                               (k->filetype (:filetype v))))
+
+    #_(defmethod set-option! :hdpi-mode [object _ v]
+        ; com.badlogic.gdx.graphics.glutils.HdpiMode
+        (.setHdpiMode object (k->hdpi-mode v)))
+
+    #_(defmethod set-option! :gl-debug-output? [object _ v]
+        (.enableGLDebugOutput object
+                              (boolean (:enable? v))
+                              (->PrintStream (:debug-output-stream v))))
+
+    (set-window-config-key! object k v)))
+
+(defn- configure-object [object config set-key-fn]
+  (doseq [[k v] config]
+    (set-key-fn object k v))
   object)
+
+(defn- window-configuration [config]
+  (configure-object (Lwjgl3WindowConfiguration.) config set-window-config-key!))
+
+(defn- application-configuration [config]
+  (configure-object (Lwjgl3ApplicationConfiguration.) config set-application-config-key!))
 
 (defn application
   "See [[clojure.app/Listener]]."
@@ -74,169 +210,17 @@
    (application listener nil))
   ([listener config]
    (Lwjgl3Application. (gdx-listener listener)
-                       (build-config (Lwjgl3ApplicationConfiguration.) config))))
+                       (application-configuration config))))
 
 (defn window
   "Creates a new Lwjgl3Window using the provided listener and Lwjgl3WindowConfiguration. This function only just instantiates a Lwjgl3Window and returns immediately. The actual window creation is postponed with Application.postRunnable(Runnable) until after all existing windows are updated."
   [application listener config]
   (Lwjgl3Application/.newWindow application
                                 (gdx-listener listener)
-                                (build-config (Lwjgl3WindowConfiguration.) config)))
+                                (window-configuration config)))
 
 (defn set-gl-debug-message-control
   "Enables or disables GL debug messages for the specified severity level. Returns false if the severity level could not be set (e.g. the NOTIFICATION level is not supported by the ARB and AMD extensions). See Lwjgl3ApplicationConfiguration.enableGLDebugOutput(boolean, PrintStream)"
   [severity enabled?]
   (Lwjgl3Application/setGLDebugMessageControl severity #_(k->severity severity)
                                               (boolean enabled?)))
-
-(defn display-mode
-  "the currently active Graphics.DisplayMode of the primary or the given monitor"
-  ([monitor]
-   (Lwjgl3ApplicationConfiguration/getDisplayMode monitor))
-  ([]
-   (Lwjgl3ApplicationConfiguration/getDisplayMode)))
-
-(defn display-modes
-  "the available Graphics.DisplayModes of the primary or the given monitor"
-  ([monitor]
-   (Lwjgl3ApplicationConfiguration/getDisplayModes monitor))
-  ([]
-   (Lwjgl3ApplicationConfiguration/getDisplayModes)))
-
-(defn primary-monitor
-  "the primary Graphics.Monitor"
-  []
-  (Lwjgl3ApplicationConfiguration/getPrimaryMonitor))
-
-(defn monitors
-  "the connected Graphics.Monitors"
-  []
-  (Lwjgl3ApplicationConfiguration/getMonitors))
-
-(defn- k->glversion [gl-version]
-  (case gl-version
-    ; TODO in the first case need to draw in the library (error cant find lib)
-    :angle-gles20 Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20
-    :gl20         Lwjgl3ApplicationConfiguration$GLEmulation/GL20
-    :gl30         Lwjgl3ApplicationConfiguration$GLEmulation/GL30
-
-    ; java.lang.IllegalArgumentException: Error compiling shader: Vertex shader
-    :gl31         Lwjgl3ApplicationConfiguration$GLEmulation/GL31
-
-    ; shader compile error ...
-    :gl32         Lwjgl3ApplicationConfiguration$GLEmulation/GL32))
-
-(defmethod set-option! :initial-visible? [config _ v]
-  (.setInitialVisible config (boolean v)))
-
-(defmethod set-option! :disable-audio? [config _ v]
-  (.disableAudio config (boolean v)))
-
-(defmethod set-option! :max-net-threads [config _ v]
-  (.setMaxNetThreads config (int v)))
-
-(defmethod set-option! :audio [config _ v]
-  (.setAudioConfig config
-                   (int (:simultaneous-sources v))
-                   (int (:buffer-size         v))
-                   (int (:buffer-count        v))))
-
-(defmethod set-option! :opengl-emulation [config _ v]
-  (.setOpenGLEmulation config
-                       (k->glversion (:gl-version v))
-                       (int (:gles-3-major-version v))
-                       (int (:gles-3-minor-version v))))
-
-(defmethod set-option! :backbuffer [config _ v]
-  (.setBackBufferConfig config
-                        (int (:r       v))
-                        (int (:g       v))
-                        (int (:b       v))
-                        (int (:a       v))
-                        (int (:depth   v))
-                        (int (:stencil v))
-                        (int (:samples v))))
-
-(defmethod set-option! :transparent-framebuffer [config _ v]
-  (.setTransparentFramebuffer config (boolean v)))
-
-(defmethod set-option! :idle-fps [config _ v]
-  (.setIdleFPS config (int v)))
-
-(defmethod set-option! :foreground-fps [config _ v]
-  (.setForegroundFPS config (int v)))
-
-(defmethod set-option! :pause-when-minimized? [config _ v]
-  (.setPauseWhenMinimized config (boolean v)))
-
-(defmethod set-option! :pause-when-lost-focus? [config _ v]
-  (.setPauseWhenLostFocus config (boolean v)))
-
-#_(defmethod set-option! :preferences [config _ v]
-  (.setPreferencesConfig config
-                         (str (:directory v))
-                         ; com.badlogic.gdx.Files.FileType
-                         (k->filetype (:filetype v))))
-
-#_(defmethod set-option! :hdpi-mode [config _ v]
-  ; com.badlogic.gdx.graphics.glutils.HdpiMode
-  (.setHdpiMode config (k->hdpi-mode v)))
-
-#_(defmethod set-option! :gl-debug-output? [config _ v]
-  (.enableGLDebugOutput config
-                        (boolean (:enable? v))
-                        (->PrintStream (:debug-output-stream v))))
-
-(defmethod set-option! :windowed-mode [config _ v]
-  (.setWindowedMode config
-                    (int (:width v))
-                    (int (:height v))))
-
-(defmethod set-option! :resizable? [config _ v]
-  (.setResizable config (boolean v)))
-
-(defmethod set-option! :decorated? [config _ v]
-  (.setDecorated config (boolean v)))
-
-(defmethod set-option! :maximized? [config _ v]
-  (.setMaximized config (boolean v)))
-
-; Graphics.Monitor
-#_(defmethod set-option! :maximized-monitor [config _ v]
-  (.setMaximizedMonitor config ()))
-
-(defmethod set-option! :auto-iconify? [config _ v]
-  (.setAutoIconify config (boolean v)))
-
-; (int x, int y)
-#_(defmethod set-option! :window-position [config _ v]
-  (.setWindowPosition config ()))
-
-;(int minWidth, int minHeight, int maxWidth, int maxHeight)
-#_(defmethod set-option! :window-size-limits [config _ v]
-  (.setWindowSizeLimits config ()))
-
-; (String... filePaths)
-; (FileType fileType, String... filePaths)
-#_(defmethod set-option! :window-icon [config _ v]
-  (.setWindowIcon config ())) ; TODO multiple options
-
-; Lwjgl3WindowListener
-#_(defmethod set-option! :window-listener [config _ v]
-  (.setWindowListener config ()))
-
-; com.badlogic.gdx.Graphics$DisplayMode (the one you got ...)
-; or convert ?!
-(defmethod set-option! :fullscreen-mode [config _ display-mode]
-  (.setFullscreenMode config display-mode))
-
-(defmethod set-option! :title [config _ v]
-  (.setTitle config (str v)))
-
-(defmethod set-option! :initial-background-color [config _ color]
-  (.setInitialBackgroundColorer config color
-                                #_(->munge-color v)
-                                ))
-
-(defmethod set-option! :vsync? [config _ v]
-  (.useVsync config (boolean v)))

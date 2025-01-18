@@ -7,4 +7,5 @@
                  [com.badlogicgames.gdx/gdx-backend-lwjgl3 ~libgdx-version]]
   :plugins [[lein-codox "0.10.8"]]
   :codox {:source-uri "https://github.com/damn/clojure.gdx.backends.lwjgl/blob/main/{filepath}#L{line}"
-          :metadata {:doc/format :markdown}})
+          :metadata {:doc/format :markdown}}
+  :global-vars {*warn-on-reflection* true})
