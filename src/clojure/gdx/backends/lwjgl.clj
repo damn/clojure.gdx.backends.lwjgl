@@ -1,5 +1,7 @@
 (ns clojure.gdx.backends.lwjgl
-  "# Application options
+  "Clojure API for `com.badlogic.gdx.backends.lwjgl3`.
+
+  # Application options
 
   | Key                | Description | Default value |
   | --------           | -------     | -------       |
@@ -16,7 +18,6 @@
   | `:preferences`    | Sets the directory where Preferences will be stored, as well as the file type to be used to store them. Defaults to \"$USER_HOME/.prefs/\" and Files.FileType.External.    |
   | `:hdpi-mode`    | Defines how HDPI monitors are handled. Operating systems may have a per-monitor HDPI scale setting. The operating system may report window width/height and mouse coordinates in a logical coordinate system at a lower resolution than the actual physical resolution. This setting allows you to specify whether you want to work in logical or raw pixel units. See HdpiMode for more information. Note that some OpenGL functions like GL20.glViewport(int, int, int, int) and GL20.glScissor(int, int, int, int) require raw pixel units. Use HdpiUtils to help with the conversion if HdpiMode is set to HdpiMode.Logical. Defaults to HdpiMode.Logical.    |
   | `:gl-debug-output?`    | Enables use of OpenGL debug message callbacks. If not supported by the core GL driver (since GL 4.3), this uses the KHR_debug, ARB_debug_output or AMD_debug_output extension if available. By default, debug messages with NOTIFICATION severity are disabled to avoid log spam. You can call with System.err to output to the \"standard\" error output stream. Use Lwjgl3Application.setGLDebugMessageControl(Lwjgl3Application.GLDebugMessageSeverity, boolean) to enable or disable other severity debug levels.    |
-  | `:hdpi-mode`    | Defines how HDPI monitors are handled. Operating systems may have a per-monitor HDPI scale setting. The operating system may report window width/height and mouse coordinates in a logical coordinate system at a lower resolution than the actual physical resolution. This setting allows you to specify whether you want to work in logical or raw pixel units. See {@link HdpiMode} for more information. Note that some OpenGL functions like {@link GL20#glViewport(int, int, int, int)} and {@link GL20#glScissor(int, int, int, int)} require raw pixel units. Use {@link HdpiUtils} to help with the conversion if HdpiMode is set to {@link HdpiMode#Logical}. Defaults to {@link HdpiMode#Logical}. |
 
   # Window options
 
