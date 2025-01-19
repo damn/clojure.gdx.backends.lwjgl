@@ -13,8 +13,8 @@
   | `:transparent-framebuffer`    | Set transparent window hint. Results may vary on different OS and GPUs. Usage with the ANGLE backend is less consistent.    | `false` |
   | `:idle-fps`    | Sets the polling rate during idle time in non-continuous rendering mode. Must be positive.     | `60` |
   | `:foreground-fps`    | Sets the target framerate for the application. The CPU sleeps as needed. Must be positive. Use 0 to never sleep.   | `0` |
-  | `:pause-when-minimized?`    | Sets whether to [[clojure.app/pause]] the application and fire LifecycleListener.pause()/LifecycleListener.resume() events on when window is minimized/restored.    | `true` |
-  | `:pause-when-lost-focus?`    | Sets whether to [[clojure.app/pause]] the applicationand fire LifecycleListener.pause()/LifecycleListener.resume() events on when window loses/gains focus.    | `false` |
+  | `:pause-when-minimized?`    | Sets whether to [[clojure.gdx.application/pause]] the application and fire LifecycleListener.pause()/LifecycleListener.resume() events on when window is minimized/restored.    | `true` |
+  | `:pause-when-lost-focus?`    | Sets whether to [[clojure.gdx.application/pause]] the applicationand fire LifecycleListener.pause()/LifecycleListener.resume() events on when window loses/gains focus.    | `false` |
   | `:preferences`    | Sets the directory where Preferences will be stored, as well as the file type to be used to store them. Defaults to \"$USER_HOME/.prefs/\" and Files.FileType.External.    |
   | `:hdpi-mode`    | Defines how HDPI monitors are handled. Operating systems may have a per-monitor HDPI scale setting. The operating system may report window width/height and mouse coordinates in a logical coordinate system at a lower resolution than the actual physical resolution. This setting allows you to specify whether you want to work in logical or raw pixel units. See HdpiMode for more information. Note that some OpenGL functions like GL20.glViewport(int, int, int, int) and GL20.glScissor(int, int, int, int) require raw pixel units. Use HdpiUtils to help with the conversion if HdpiMode is set to HdpiMode.Logical. Defaults to HdpiMode.Logical.    |
   | `:gl-debug-output?`    | Enables use of OpenGL debug message callbacks. If not supported by the core GL driver (since GL 4.3), this uses the KHR_debug, ARB_debug_output or AMD_debug_output extension if available. By default, debug messages with NOTIFICATION severity are disabled to avoid log spam. You can call with System.err to output to the \"standard\" error output stream. Use Lwjgl3Application.setGLDebugMessageControl(Lwjgl3Application.GLDebugMessageSeverity, boolean) to enable or disable other severity debug levels.    |
@@ -38,7 +38,7 @@
   | `:title`                    | Sets the window title. If null, the application listener's class name is used.  | `` |
   | `:initial-background-color` | Sets the initial background color. Defaults to black.  | `` |
   | `:vsync?`                   | Sets whether to use vsync. This setting can be changed anytime at runtime via {@link Graphics#setVSync(boolean)}. For multi-window applications, only one (the main) window should enable vsync. Otherwise, every window will wait for the vertical blank on swap individually, effectively cutting the frame rate to (refreshRate / numberOfWindows). | `` |"
-  (:require [clojure.app :as app])
+  (:require [clojure.gdx.application :as app])
   (:import (com.badlogic.gdx ApplicationListener)
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
                                              Lwjgl3ApplicationConfiguration
@@ -206,7 +206,7 @@
   (configure-object (Lwjgl3ApplicationConfiguration.) config set-application-config-key!))
 
 (defn application
-  "See [[clojure.app/Listener]]."
+  "See [[clojure.gdx.application/Listener]]."
   ([listener]
    (application listener nil))
   ([listener config]

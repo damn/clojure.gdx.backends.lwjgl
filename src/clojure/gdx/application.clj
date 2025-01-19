@@ -1,4 +1,4 @@
-(ns clojure.app)
+(ns clojure.gdx.application)
 
 (defprotocol Listener
   "An ApplicationListener is called when the Application is created, resumed, rendering, paused or destroyed. All methods are called in a thread that has the OpenGL context current. You can thus safely create and manipulate graphics resources.
