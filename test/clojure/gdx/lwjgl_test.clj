@@ -1,5 +1,5 @@
 (ns clojure.gdx.lwjgl-test
-  (:require [clojure.app :as app]
+  (:require [clojure.gdx.application :as app]
             [clojure.gdx.backends.lwjgl :as lwjgl]))
 
 (defn -main []
