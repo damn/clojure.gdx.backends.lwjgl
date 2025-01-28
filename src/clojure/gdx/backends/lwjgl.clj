@@ -49,7 +49,10 @@
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
                                              Lwjgl3Graphics$Lwjgl3Monitor
                                              Lwjgl3WindowConfiguration)
-           (java.lang.reflect Constructor)))
+           (com.badlogic.gdx.utils SharedLibraryLoader
+                                   Os)
+           (java.lang.reflect Constructor)
+           (org.lwjgl.system Configuration)))
 
 (defn- display-mode->map [^Lwjgl3Graphics$Lwjgl3DisplayMode display-mode]
   {:width          (.width        display-mode)
@@ -219,8 +222,14 @@
   ([listener]
    (application listener nil))
   ([listener config]
-   (Lwjgl3Application. (gdx-listener listener)
-                       (application-configuration config))))
+   (when (= SharedLibraryLoader/os Os/MacOsX)
+     (.set Configuration/GLFW_LIBRARY_NAME "glfw_async"))
+   (let [config (application-configuration config)]
+     (when (= (.glEmulation config)
+              Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20)
+       (Lwjgl3Application/loadANGLE))
+     (Lwjgl3Application. (gdx-listener listener)
+                         config))))
 
 (defn window
   "Creates a new Lwjgl3Window using the provided listener and Lwjgl3WindowConfiguration. This function only just instantiates a Lwjgl3Window and returns immediately. The actual window creation is postponed with Application.postRunnable(Runnable) until after all existing windows are updated."
