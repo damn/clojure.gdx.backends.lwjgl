@@ -30,8 +30,11 @@
   | `:maximized?`               | whether the window starts maximized. Ignored if the window is full screen.  | `false` |
   | `maximized-monitor`         | what monitor the window should maximize to | - |
   | `:auto-iconify?`            | whether the window should automatically iconify and restore previous video mode on input focus loss. Does nothing in windowed mode. | `true` |
-  | `:window-position`          |  Sets the position of the window in windowed mode. Default -1 for both coordinates for centered on primary monitor. | `` |
-  | `:window-size-limits`       | Sets minimum and maximum size limits for the window. If the window is full screen or not resizable, these limits are ignored. The default for all four parameters is -1, which means unrestricted. | `` |
+  | `:window-position`          |  Sets the position of the window in windowed mode. Default -1 for both coordinates for centered on primary monitor. | `{:x -1 :y -1}` |
+  | `:window-size-limits`       | Sets minimum and maximum size limits for the window. If the window is full screen or not resizable, these limits are ignored. The default for all four parameters is -1, which means unrestricted. | `{:min-width -1
+      :min-height -1
+      :max-width -1
+      :max-height -1}` |
   | `:window-icon`              | Sets the icon that will be used in the window's title bar. Has no effect in macOS, which doesn't use window icons. | `` |
   | `:windowed-listener`        | Sets the {@link Lwjgl3WindowListener} which will be informed about iconficiation, focus loss and window close events. | `` |
   | `:fullscreen-mode`          |  Sets the app to use fullscreen mode. Use the static methods like {@link Lwjgl3ApplicationConfiguration#getDisplayMode()} on this class to enumerate connected monitors and their fullscreen display modes. |
@@ -133,20 +136,24 @@
     :maximized? (.setMaximized object (boolean v))
     :maximized-monitor (.setMaximizedMonitor object (map->monitor v))
     :auto-iconify? (.setAutoIconify object (boolean v))
-
-    ;:window-position (.setWindowPosition object ())
-
-    ;(int minWidth, int minHeight, int maxWidth, int maxHeight)
-    ;:window-size-limits (.setWindowSizeLimits object ())
-
-    ; (String... filePaths)
-    ; (FileType fileType, String... filePaths)
-    ;:window-icon (.setWindowIcon object ())
-
-    ;:window-listener (.setWindowListener object ())
-
-    ;:initial-background-color (.setInitialBackgroundColorer object color #_(->munge-color v))
-
+    :window-position (.setWindowPosition object
+                                         (int (:x v))
+                                         (int (:y v)))
+    :window-size-limits (.setWindowSizeLimits object
+                                                (int (:min-width  v))
+                                                (int (:min-height v))
+                                                (int (:max-width  v))
+                                                (int (:max-height v)))
+    :window-icons (.setWindowIcon object
+                                  ; filetype
+                                  ; array of string of file icons
+                                  )
+    ; => need Linux/Win box
+    :window-listener (.setWindowListener object
+                                         ; Lwjgl3WindowListener v
+                                         )
+    :initial-background-color (.setInitialBackgroundColorer object
+                                                            #_(->munge-color v))
     :fullscreen-mode (.setFullscreenMode object (map->display-mode v))
     :title (.setTitle object (str v))
     :vsync? (.useVsync object (boolean v))))
@@ -177,12 +184,14 @@
     :pause-when-minimized? (.setPauseWhenMinimized object (boolean v))
     :pause-when-lost-focus? (.setPauseWhenLostFocus object (boolean v))
 
+    ; String preferencesDirectory, Files.FileType preferencesFileType
     #_(defmethod set-option! :preferences [object _ v]
         (.setPreferencesConfig object
                                (str (:directory v))
                                ; com.badlogic.gdx.Files.FileType
                                (k->filetype (:filetype v))))
 
+    ; com.badlogic.gdx.graphics.glutils.HdpiMode/ 'Logical' / 'Pixels'
     #_(defmethod set-option! :hdpi-mode [object _ v]
         ; com.badlogic.gdx.graphics.glutils.HdpiMode
         (.setHdpiMode object (k->hdpi-mode v)))
