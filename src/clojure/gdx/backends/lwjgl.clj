@@ -46,8 +46,7 @@
                                              Lwjgl3ApplicationConfiguration$GLEmulation
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
                                              Lwjgl3Graphics$Lwjgl3Monitor
-                                             Lwjgl3WindowConfiguration)
-           (java.lang.reflect Constructor)))
+                                             Lwjgl3WindowConfiguration)))
 
 (defn- display-mode->map [^Lwjgl3Graphics$Lwjgl3DisplayMode display-mode]
   {:width          (.width        display-mode)
