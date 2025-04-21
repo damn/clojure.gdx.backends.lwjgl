@@ -41,9 +41,7 @@
   | `:title`                    | Sets the window title. If null, the application listener's class name is used.  | `` |
   | `:initial-background-color` | Sets the initial background color. Defaults to black.  | `` |
   | `:vsync?`                   | Sets whether to use vsync. This setting can be changed anytime at runtime via {@link Graphics#setVSync(boolean)}. For multi-window applications, only one (the main) window should enable vsync. Otherwise, every window will wait for the vertical blank on swap individually, effectively cutting the frame rate to (refreshRate / numberOfWindows). | `` |"
-  (:require [clojure.gdx.application :as app])
-  (:import (com.badlogic.gdx ApplicationListener)
-           (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
+  (:import (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
                                              Lwjgl3ApplicationConfiguration
                                              Lwjgl3ApplicationConfiguration$GLEmulation
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
@@ -101,21 +99,6 @@
   "The connected monitors."
   []
   (map monitor->map (Lwjgl3ApplicationConfiguration/getMonitors)))
-
-(defn- gdx-listener [listener]
-  (proxy [ApplicationListener] []
-    (create []
-      (app/create listener))
-    (dispose []
-      (app/dispose listener))
-    (pause []
-      (app/pause listener))
-    (render []
-      (app/render listener))
-    (resize [width height]
-      (app/resize listener width height))
-    (resume []
-      (app/resume listener))))
 
 (defn- k->glversion [gl-version]
   (case gl-version
@@ -219,14 +202,14 @@
   ([listener]
    (application listener nil))
   ([listener config]
-   (Lwjgl3Application. (gdx-listener listener)
+   (Lwjgl3Application. listener
                        (application-configuration config))))
 
 (defn window
   "Creates a new Lwjgl3Window using the provided listener and Lwjgl3WindowConfiguration. This function only just instantiates a Lwjgl3Window and returns immediately. The actual window creation is postponed with Application.postRunnable(Runnable) until after all existing windows are updated."
   [application listener config]
   (Lwjgl3Application/.newWindow application
-                                (gdx-listener listener)
+                                listener
                                 (window-configuration config)))
 
 (defn set-gl-debug-message-control
