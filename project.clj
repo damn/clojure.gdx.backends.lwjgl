@@ -2,7 +2,6 @@
 
 (defproject clojure.gdx.backends.lwjgl "1.13.0-0.2"
   :dependencies [[org.clojure/clojure "1.12.0"]
-                 [com.badlogicgames.gdx/gdx                ~libgdx-version]
                  [com.badlogicgames.gdx/gdx-platform       ~libgdx-version :classifier "natives-desktop"]
                  [com.badlogicgames.gdx/gdx-backend-lwjgl3 ~libgdx-version]]
   :plugins [[lein-codox "0.10.8"]]
