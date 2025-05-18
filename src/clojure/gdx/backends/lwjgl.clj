@@ -1,10 +1,17 @@
 (ns clojure.gdx.backends.lwjgl
-  (:import (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
+  (:require [clojure.java.io :as io])
+  (:import (com.badlogic.gdx ApplicationAdapter)
+           (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
                                              Lwjgl3ApplicationConfiguration
                                              Lwjgl3ApplicationConfiguration$GLEmulation
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
                                              Lwjgl3Graphics$Lwjgl3Monitor
-                                             Lwjgl3WindowConfiguration)))
+                                             Lwjgl3WindowConfiguration)
+           (com.badlogic.gdx.utils SharedLibraryLoader
+                                   Os)
+           (java.awt Taskbar
+                     Toolkit)
+           (org.lwjgl.system Configuration)))
 
 (defn- display-mode->map [^Lwjgl3Graphics$Lwjgl3DisplayMode display-mode]
   {:width          (.width        display-mode)
@@ -34,15 +41,6 @@
                   (into-array Object [monitor-handle virtual-x virtual-y name]))))
 
 (defn display-mode
-  "The currently active display-mode of the primary or the given monitor.
-
-  A display-mode is a map of:
-
-  `{:width` <br>
-   `:height` <br>
-   `:refresh-rate` <br>
-   `:bits-per-pixel` <br>
-   `:monitor-handle }` "
   ([monitor]
    (display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayMode (map->monitor monitor))))
   ([]
@@ -110,6 +108,19 @@
 
 (defn- set-application-config-key! [^Lwjgl3ApplicationConfiguration object k v]
   (case k
+    :mac-os (when (= SharedLibraryLoader/os Os/MacOsX)
+              (println "Setting mac-os options")
+              (let [{:keys [glfw-async?
+                            dock-icon] :as options} v]
+                (println "options:" options)
+                (when glfw-async?
+                  (println "Setting glfw-async")
+                  (.set Configuration/GLFW_LIBRARY_NAME "glfw_async"))
+                (when dock-icon
+                  (println "Setting dock-icon")
+                  (.setIconImage (Taskbar/getTaskbar)
+                                 (.getImage (Toolkit/getDefaultToolkit)
+                                            (io/resource dock-icon))))))
     :audio (.setAudioConfig object
                             (int (:simultaneous-sources v))
                             (int (:buffer-size         v))
@@ -158,19 +169,26 @@
     (set-key-fn object k v))
   object)
 
-(defn application
-  "`listener` is a `com.badlogic.gdx.ApplicationListener`
+(defn application [{:keys [create!
+                           dispose!
+                           render!
+                           resize!]
+                    :as config}]
+  (Lwjgl3Application. (proxy [ApplicationAdapter] []
+                        (create []
+                          (when create! (create!)))
 
-  `config` is [application options](https://github.com/damn/clojure.gdx.backends.lwjgl/wiki/Application-options)
+                        (dispose []
+                          (when dispose! (dispose!)))
 
-  and [window options](https://github.com/damn/clojure.gdx.backends.lwjgl/wiki/Window-options)."
-  ([listener]
-   (application listener nil))
-  ([listener config]
-   (Lwjgl3Application. listener
-                       (configure-object (Lwjgl3ApplicationConfiguration.)
-                                         config
-                                         set-application-config-key!))))
+                        (render []
+                          (when render! (render!)))
+
+                        (resize [width height]
+                          (when resize! (resize! width height))))
+                      (configure-object (Lwjgl3ApplicationConfiguration.)
+                                        config
+                                        set-application-config-key!)))
 
 (defn window
   "Creates a new Lwjgl3Window using the provided listener and Lwjgl3WindowConfiguration. This function only just instantiates a Lwjgl3Window and returns immediately. The actual window creation is postponed with Application.postRunnable(Runnable) until after all existing windows are updated."
