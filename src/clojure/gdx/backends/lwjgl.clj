@@ -1,7 +1,6 @@
 (ns clojure.gdx.backends.lwjgl
   (:require [clojure.java.io :as io])
-  (:import (com.badlogic.gdx ApplicationAdapter)
-           (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
+  (:import (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
                                              Lwjgl3ApplicationConfiguration
                                              Lwjgl3ApplicationConfiguration$GLEmulation
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
@@ -70,6 +69,8 @@
     :gl30         Lwjgl3ApplicationConfiguration$GLEmulation/GL30
     :gl31         Lwjgl3ApplicationConfiguration$GLEmulation/GL31
     :gl32         Lwjgl3ApplicationConfiguration$GLEmulation/GL32))
+
+; TODO tests for all keys / gl emulation / etc ?
 
 (defn- set-window-config-key! [^Lwjgl3WindowConfiguration object k v]
   (case k
@@ -169,23 +170,8 @@
     (set-key-fn object k v))
   object)
 
-(defn application [{:keys [create!
-                           dispose!
-                           render!
-                           resize!]
-                    :as config}]
-  (Lwjgl3Application. (proxy [ApplicationAdapter] []
-                        (create []
-                          (when create! (create!)))
-
-                        (dispose []
-                          (when dispose! (dispose!)))
-
-                        (render []
-                          (when render! (render!)))
-
-                        (resize [width height]
-                          (when resize! (resize! width height))))
+(defn application [config listener]
+  (Lwjgl3Application. listener
                       (configure-object (Lwjgl3ApplicationConfiguration.)
                                         config
                                         set-application-config-key!)))

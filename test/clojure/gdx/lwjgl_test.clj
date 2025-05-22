@@ -4,8 +4,11 @@
 ; TODO FIXME can't call display-mode without setting GLFW async first
 
 (defn -main []
-  (let [display-mode (lwjgl/display-mode)]
+  #_(let [display-mode (lwjgl/display-mode)]
     (println "display-mode: " display-mode)
     (println "primary monitor: " (lwjgl/primary-monitor))
     (lwjgl/application {:fullscreen-mode display-mode
-                        :mac-os {:glfw-async? true}})))
+                        :mac-os {:glfw-async? true}}))
+
+  (lwjgl/application {:mac-os {:glfw-async? true}})
+  )
