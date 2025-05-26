@@ -5,9 +5,12 @@
                                              Lwjgl3ApplicationConfiguration
                                              Lwjgl3ApplicationConfiguration$GLEmulation
                                              Lwjgl3ApplicationLogger
+                                             Lwjgl3Clipboard
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
                                              Lwjgl3Graphics$Lwjgl3Monitor
-                                             Lwjgl3WindowConfiguration)
+                                             Lwjgl3WindowConfiguration
+                                             Lwjgl3Net
+                                             Sync)
            (com.badlogic.gdx.backends.lwjgl3.audio.mock MockAudio)
            (com.badlogic.gdx.utils SharedLibraryLoader
                                    Os)
@@ -198,6 +201,12 @@
            (.log application "Lwjgl3Application" "Couldn't initialize audio, disabling audio" t)
            (set! (.audio application) (MockAudio.)))))
       (set! Gdx/audio (.audio application))
+      (set! (.files application) (.createFiles application))
+      (set! Gdx/files (.files application))
+      (set! (.net application) (Lwjgl3Net. config))
+      (set! Gdx/net (.net application))
+      (set! (.clipboard application) (Lwjgl3Clipboard.))
+      (set! (.sync application) (Sync.))
       (.setup application listener config))))
 
 (defn window

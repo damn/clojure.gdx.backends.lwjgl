@@ -120,12 +120,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	}
 
 	public void setup (ApplicationListener listener, Lwjgl3ApplicationConfiguration config) {
-		this.files = Gdx.files = createFiles();
-		this.net = Gdx.net = new Lwjgl3Net(config);
-		this.clipboard = new Lwjgl3Clipboard();
-
-		this.sync = new Sync();
-
 		Lwjgl3Window window = createWindow(config, listener, 0);
 		if (config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.ANGLE_GLES20) postLoadANGLE();
 		windows.add(window);
@@ -394,7 +388,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		return new DefaultLwjgl3Input(window);
 	}
 
-	protected Files createFiles () {
+	public Files createFiles () {
 		return new Lwjgl3Files();
 	}
 

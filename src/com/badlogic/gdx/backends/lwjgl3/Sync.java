@@ -38,7 +38,7 @@ import static org.lwjgl.glfw.GLFW.glfwGetTime;
  *
  * @author Riven
  * @author kappaOne */
-class Sync {
+public class Sync {
 
 	/** number of nano seconds in a second */
 	private static final long NANOS_IN_SECOND = 1000L * 1000L * 1000L;
