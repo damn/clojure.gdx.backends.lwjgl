@@ -43,7 +43,7 @@ import com.badlogic.gdx.math.GridPoint2;
 public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	public static PrintStream errorStream = System.err;
 
-	boolean disableAudio = false;
+	public boolean disableAudio = false;
 
 	/** The maximum number of threads to use for network requests. Default is {@link Integer#MAX_VALUE}. */
 	int maxNetThreads = Integer.MAX_VALUE;

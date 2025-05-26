@@ -120,17 +120,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	}
 
 	public void setup (ApplicationListener listener, Lwjgl3ApplicationConfiguration config) {
-		if (!config.disableAudio) {
-			try {
-				this.audio = createAudio(config);
-			} catch (Throwable t) {
-				log("Lwjgl3Application", "Couldn't initialize audio, disabling audio", t);
-				this.audio = new MockAudio();
-			}
-		} else {
-			this.audio = new MockAudio();
-		}
-		Gdx.audio = audio;
 		this.files = Gdx.files = createFiles();
 		this.net = Gdx.net = new Lwjgl3Net(config);
 		this.clipboard = new Lwjgl3Clipboard();

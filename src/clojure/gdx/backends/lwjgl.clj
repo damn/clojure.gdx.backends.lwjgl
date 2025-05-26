@@ -8,6 +8,7 @@
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
                                              Lwjgl3Graphics$Lwjgl3Monitor
                                              Lwjgl3WindowConfiguration)
+           (com.badlogic.gdx.backends.lwjgl3.audio.mock MockAudio)
            (com.badlogic.gdx.utils SharedLibraryLoader
                                    Os)
            (java.awt Taskbar
@@ -189,6 +190,14 @@
       (if (nil? (.title config))
         (set! (.title config) (.getSimpleName (class listener))))
       (set! Gdx/app application)
+      (if (.disableAudio config)
+        (set! (.audio application) (MockAudio.))
+        (try
+         (set! (.audio application) (.createAudio application config))
+         (catch Throwable t
+           (.log application "Lwjgl3Application" "Couldn't initialize audio, disabling audio" t)
+           (set! (.audio application) (MockAudio.)))))
+      (set! Gdx/audio (.audio application))
       (.setup application listener config))))
 
 (defn window
