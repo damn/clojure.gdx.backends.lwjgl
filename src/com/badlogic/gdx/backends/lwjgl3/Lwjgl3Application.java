@@ -78,7 +78,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	private static Callback glDebugCallback;
 	private final Sync sync;
 
-	static void initializeGlfw () {
+	public static void initializeGlfw () {
 		if (errorCallback == null) {
 			Lwjgl3NativesLoader.load();
 			errorCallback = GLFWErrorCallback.createPrint(Lwjgl3ApplicationConfiguration.errorStream);
@@ -121,7 +121,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	}
 
 	public Lwjgl3Application (ApplicationListener listener, Lwjgl3ApplicationConfiguration config) {
-		initializeGlfw();
 		setApplicationLogger(new Lwjgl3ApplicationLogger());
 
 		this.config = config = Lwjgl3ApplicationConfiguration.copy(config);

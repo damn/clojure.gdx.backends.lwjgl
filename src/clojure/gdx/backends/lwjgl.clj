@@ -177,6 +177,7 @@
     (when (= (.glEmulation config)
              Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20)
       (Lwjgl3Application/loadANGLE))
+    (Lwjgl3Application/initializeGlfw)
     (Lwjgl3Application. listener
                         config)))
 
