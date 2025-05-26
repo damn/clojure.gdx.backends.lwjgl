@@ -171,6 +171,9 @@
     (set-key-fn object k v))
   object)
 
+; TODO tests ! see whats there?
+; logging ? etc. ANGLE_GLES20 ?
+
 (defn application [config listener]
   (let [config (configure-object (Lwjgl3ApplicationConfiguration.)
                                  config
@@ -181,6 +184,9 @@
     (Lwjgl3Application/initializeGlfw)
     (let [application (Lwjgl3Application.)]
       (.setApplicationLogger application (Lwjgl3ApplicationLogger.))
+      (set! (.config application) config)
+      (if (nil? (.title config))
+        (set! (.title config) (.getSimpleName (class listener))))
       (.setup application listener config))))
 
 (defn window
