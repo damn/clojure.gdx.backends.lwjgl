@@ -59,24 +59,24 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 
 public class Lwjgl3Application implements Lwjgl3ApplicationBase {
-	private final Lwjgl3ApplicationConfiguration config;
+	public Lwjgl3ApplicationConfiguration config;
 	final Array<Lwjgl3Window> windows = new Array<Lwjgl3Window>();
-	private volatile Lwjgl3Window currentWindow;
-	private Lwjgl3Audio audio;
-	private final Files files;
-	private final Net net;
-	private final ObjectMap<String, Preferences> preferences = new ObjectMap<String, Preferences>();
-	private final Lwjgl3Clipboard clipboard;
-	private int logLevel = LOG_INFO;
-	private ApplicationLogger applicationLogger;
-	private volatile boolean running = true;
-	private final Array<Runnable> runnables = new Array<Runnable>();
-	private final Array<Runnable> executedRunnables = new Array<Runnable>();
-	private final Array<LifecycleListener> lifecycleListeners = new Array<LifecycleListener>();
-	private static GLFWErrorCallback errorCallback;
-	private static GLVersion glVersion;
-	private static Callback glDebugCallback;
-	private final Sync sync;
+	public volatile Lwjgl3Window currentWindow;
+	public Lwjgl3Audio audio;
+	public Files files;
+	public Net net;
+	public ObjectMap<String, Preferences> preferences = new ObjectMap<String, Preferences>();
+	public Lwjgl3Clipboard clipboard;
+	public int logLevel = LOG_INFO;
+	public ApplicationLogger applicationLogger;
+	public volatile boolean running = true;
+	public Array<Runnable> runnables = new Array<Runnable>();
+	public Array<Runnable> executedRunnables = new Array<Runnable>();
+	public Array<LifecycleListener> lifecycleListeners = new Array<LifecycleListener>();
+	public static GLFWErrorCallback errorCallback;
+	public static GLVersion glVersion;
+	public static Callback glDebugCallback;
+	public Sync sync;
 
 	public static void initializeGlfw () {
 		if (errorCallback == null) {
@@ -116,9 +116,10 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		}
 	}
 
-	public Lwjgl3Application (ApplicationListener listener, Lwjgl3ApplicationConfiguration config) {
-		setApplicationLogger(new Lwjgl3ApplicationLogger());
+	public Lwjgl3Application () {
+	}
 
+	public void setup (ApplicationListener listener, Lwjgl3ApplicationConfiguration config) {
 		this.config = config = Lwjgl3ApplicationConfiguration.copy(config);
 		if (config.title == null) config.title = listener.getClass().getSimpleName();
 

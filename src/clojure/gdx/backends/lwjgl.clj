@@ -3,6 +3,7 @@
   (:import (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
                                              Lwjgl3ApplicationConfiguration
                                              Lwjgl3ApplicationConfiguration$GLEmulation
+                                             Lwjgl3ApplicationLogger
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
                                              Lwjgl3Graphics$Lwjgl3Monitor
                                              Lwjgl3WindowConfiguration)
@@ -178,8 +179,9 @@
              Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20)
       (Lwjgl3Application/loadANGLE))
     (Lwjgl3Application/initializeGlfw)
-    (Lwjgl3Application. listener
-                        config)))
+    (let [application (Lwjgl3Application.)]
+      (.setApplicationLogger application (Lwjgl3ApplicationLogger.))
+      (.setup application listener config))))
 
 (defn window
   "Creates a new Lwjgl3Window using the provided listener and Lwjgl3WindowConfiguration. This function only just instantiates a Lwjgl3Window and returns immediately. The actual window creation is postponed with Application.postRunnable(Runnable) until after all existing windows are updated."
