@@ -1,6 +1,6 @@
-(def libgdx-version "1.13.1")
+(def libgdx-version "1.13.5")
 
-(defproject clojure.gdx.backends.lwjgl "1.13.0-0.2"
+(defproject clojure.gdx.backends.lwjgl "1.13.5"
   :dependencies [[org.clojure/clojure "1.12.0"]
                  [com.badlogicgames.gdx/gdx-platform       ~libgdx-version :classifier "natives-desktop"]
                  [com.badlogicgames.gdx/gdx-backend-lwjgl3 ~libgdx-version]]
