@@ -120,7 +120,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	}
 
 	public void setup (ApplicationListener listener, Lwjgl3ApplicationConfiguration config) {
-		Gdx.app = this;
 		if (!config.disableAudio) {
 			try {
 				this.audio = createAudio(config);

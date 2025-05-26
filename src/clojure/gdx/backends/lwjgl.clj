@@ -1,6 +1,7 @@
 (ns clojure.gdx.backends.lwjgl
   (:require [clojure.java.io :as io])
-  (:import (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
+  (:import (com.badlogic.gdx Gdx)
+           (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
                                              Lwjgl3ApplicationConfiguration
                                              Lwjgl3ApplicationConfiguration$GLEmulation
                                              Lwjgl3ApplicationLogger
@@ -187,6 +188,7 @@
       (set! (.config application) config)
       (if (nil? (.title config))
         (set! (.title config) (.getSimpleName (class listener))))
+      (set! Gdx/app application)
       (.setup application listener config))))
 
 (defn window
