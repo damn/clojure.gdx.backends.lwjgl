@@ -56,7 +56,7 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 		ANGLE_GLES20, GL20, GL30, GL31, GL32
 	}
 
-	GLEmulation glEmulation = GLEmulation.GL20;
+	public GLEmulation glEmulation = GLEmulation.GL20;
 	int gles30ContextMajorVersion = 3;
 	int gles30ContextMinorVersion = 2;
 

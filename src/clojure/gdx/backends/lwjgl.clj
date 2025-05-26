@@ -171,10 +171,14 @@
   object)
 
 (defn application [config listener]
-  (Lwjgl3Application. listener
-                      (configure-object (Lwjgl3ApplicationConfiguration.)
-                                        config
-                                        set-application-config-key!)))
+  (let [config (configure-object (Lwjgl3ApplicationConfiguration.)
+                                 config
+                                 set-application-config-key!)]
+    (when (= (.glEmulation config)
+             Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20)
+      (Lwjgl3Application/loadANGLE))
+    (Lwjgl3Application. listener
+                        config)))
 
 (defn window
   "Creates a new Lwjgl3Window using the provided listener and Lwjgl3WindowConfiguration. This function only just instantiates a Lwjgl3Window and returns immediately. The actual window creation is postponed with Application.postRunnable(Runnable) until after all existing windows are updated."
