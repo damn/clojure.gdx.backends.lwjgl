@@ -8,7 +8,8 @@
     (println "display-mode: " display-mode)
     (println "primary monitor: " (lwjgl/primary-monitor))
     (lwjgl/application {:fullscreen-mode display-mode
-                        :mac-os {:glfw-async? true}}))
+                        :mac-os {:glfw-async? true}}
+                       (proxy [com.badlogic.gdx.ApplicationAdapter] [])))
 
-  (lwjgl/application {:mac-os {:glfw-async? true}})
-  )
+  (lwjgl/application {:mac-os {:glfw-async? true}}
+                     (proxy [com.badlogic.gdx.ApplicationAdapter] [])))
