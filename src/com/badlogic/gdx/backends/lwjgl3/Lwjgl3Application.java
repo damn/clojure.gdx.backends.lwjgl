@@ -92,18 +92,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		}
 	}
 
-	public static void loadANGLE () {
-		try {
-			Class angleLoader = Class.forName("com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader");
-			Method load = angleLoader.getMethod("load");
-			load.invoke(angleLoader);
-		} catch (ClassNotFoundException t) {
-			return;
-		} catch (Throwable t) {
-			throw new GdxRuntimeException("Couldn't load ANGLE.", t);
-		}
-	}
-
 	static void postLoadANGLE () {
 		try {
 			Class angleLoader = Class.forName("com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader");

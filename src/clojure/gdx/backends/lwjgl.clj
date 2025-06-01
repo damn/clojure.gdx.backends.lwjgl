@@ -172,13 +172,29 @@
     (set-key-fn object k v))
   object)
 
+(defn- load-angle! []
+  (eval '(com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader/load))
+  ;	public static void loadANGLE () {
+  ;		try {
+  ;			Class angleLoader = Class.forName("com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader");
+  ;			Method load = angleLoader.getMethod("load");
+  ;			load.invoke(angleLoader);
+  ;		} catch (ClassNotFoundException t) {
+  ;			return;
+  ;		} catch (Throwable t) {
+  ;			throw new GdxRuntimeException("Couldn't load ANGLE.", t);
+  ;		}
+	;}
+
+  )
+
 (defn application [config listener]
   (let [config (configure-object (Lwjgl3ApplicationConfiguration.)
                                  config
                                  set-application-config-key!)]
     (when (= (.glEmulation config)
              Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20)
-      (Lwjgl3Application/loadANGLE))
+      (load-angle!))
     (Lwjgl3Application/initializeGlfw)
     (let [application (Lwjgl3Application.)]
       (.setApplicationLogger application (Lwjgl3ApplicationLogger.))
