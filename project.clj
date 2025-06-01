@@ -1,7 +1,16 @@
 (def libgdx-version "1.13.5")
 
 (defproject clojure.gdx.backends.lwjgl "1.13.5"
+  ;; for dev-loop:
+  :repositories [["jitpack" "https://jitpack.io"]]
+  ;;
+
   :dependencies [[org.clojure/clojure "1.12.0"]
+
+                 ;; for dev:
+                 [com.github.damn/clojure.dev-loop "ef54a03"]
+                 ;;
+
                  [com.badlogicgames.gdx/gdx-platform       ~libgdx-version :classifier "natives-desktop"]
 
                  ; [com.badlogicgames.gdx/gdx-lwjgl3-angle   ~libgdx-version]
