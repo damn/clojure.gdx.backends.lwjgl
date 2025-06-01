@@ -116,15 +116,11 @@
 (defn- set-application-config-key! [^Lwjgl3ApplicationConfiguration object k v]
   (case k
     :mac-os (when (= SharedLibraryLoader/os Os/MacOsX)
-              (println "Setting mac-os options")
               (let [{:keys [glfw-async?
                             dock-icon] :as options} v]
-                (println "options:" options)
                 (when glfw-async?
-                  (println "Setting glfw-async")
                   (.set Configuration/GLFW_LIBRARY_NAME "glfw_async"))
                 (when dock-icon
-                  (println "Setting dock-icon")
                   (.setIconImage (Taskbar/getTaskbar)
                                  (.getImage (Toolkit/getDefaultToolkit)
                                             (io/resource dock-icon))))))
