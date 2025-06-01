@@ -1,10 +1,10 @@
 (ns clojure.gdx.backends.lwjgl
   (:require [clojure.java.io :as io])
-  (:import (com.badlogic.gdx Gdx)
+  (:import (com.badlogic.gdx ApplicationLogger
+                             Gdx)
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
                                              Lwjgl3ApplicationConfiguration
                                              Lwjgl3ApplicationConfiguration$GLEmulation
-                                             Lwjgl3ApplicationLogger
                                              Lwjgl3Clipboard
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
                                              Lwjgl3Graphics$Lwjgl3Monitor
@@ -205,6 +205,31 @@
 (defn- post-load-angle! []
   (eval '(com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader/postGlfwInit)))
 
+(defn- Lwjgl3ApplicationLogger []
+  (reify ApplicationLogger
+    (log [_ tag message]
+      (println (str "[" tag "] " message)))
+
+    (log [_ tag message exception]
+      (println (str "[" tag "] " message))
+      (Throwable/.printStackTrace exception System/out))
+
+    (error [_ tag message]
+      (binding [*out* *err*]
+        (println (str "[" tag "] " message))))
+
+    (error [_ tag message exception]
+      (binding [*out* *err*]
+        (println (str "[" tag "] " message))
+        (Throwable/.printStackTrace exception System/err)))
+
+    (debug [_ tag message]
+      (println (str "[" tag "] " message)))
+
+    (debug [_ tag message exception]
+      (println (str "[" tag "] " message))
+      (Throwable/.printStackTrace exception System/out))))
+
 (defn application [config listener]
   (let [config (configure-object (Lwjgl3ApplicationConfiguration.)
                                  config
@@ -214,7 +239,7 @@
       (load-angle!))
     (initialize-glfw!)
     (let [application (Lwjgl3Application.)]
-      (.setApplicationLogger application (Lwjgl3ApplicationLogger.))
+      (.setApplicationLogger application (Lwjgl3ApplicationLogger))
       (set! (.config application) config)
       (if (nil? (.title config))
         (set! (.title config) (.getSimpleName (class listener))))
