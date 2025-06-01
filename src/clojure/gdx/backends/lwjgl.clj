@@ -6,6 +6,7 @@
                                              Lwjgl3ApplicationConfiguration
                                              Lwjgl3ApplicationConfiguration$GLEmulation
                                              Lwjgl3Clipboard
+                                             Lwjgl3Cursor
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
                                              Lwjgl3Graphics$Lwjgl3Monitor
                                              Lwjgl3Net
@@ -230,6 +231,16 @@
       (println (str "[" tag "] " message))
       (Throwable/.printStackTrace exception System/out))))
 
+(defn- cleanup! [application]
+  (Lwjgl3Cursor/disposeSystemCursors)
+  (.dispose (.audio application))
+  (.free Lwjgl3Application/errorCallback)
+  (set! Lwjgl3Application/errorCallback nil)
+  (when Lwjgl3Application/glDebugCallback
+    (.free Lwjgl3Application/glDebugCallback)
+    (set! Lwjgl3Application/glDebugCallback nil))
+  (GLFW/glfwTerminate))
+
 (defn application [config listener]
   (let [config (configure-object (Lwjgl3ApplicationConfiguration.)
                                  config
@@ -270,7 +281,7 @@
          (catch Throwable t
            (throw t))
          (finally
-          (.cleanup this)))))))
+          (cleanup! this)))))))
 
 (defn window
   "Creates a new Lwjgl3Window using the provided listener and Lwjgl3WindowConfiguration. This function only just instantiates a Lwjgl3Window and returns immediately. The actual window creation is postponed with Application.postRunnable(Runnable) until after all existing windows are updated."

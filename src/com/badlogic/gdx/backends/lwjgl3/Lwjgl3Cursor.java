@@ -98,7 +98,7 @@ public class Lwjgl3Cursor implements Cursor {
 		}
 	}
 
-	static void disposeSystemCursors () {
+	public static void disposeSystemCursors () {
 		for (long systemCursor : systemCursors.values()) {
 			GLFW.glfwDestroyCursor(systemCursor);
 		}

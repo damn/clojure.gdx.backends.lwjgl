@@ -167,18 +167,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		windows.clear();
 	}
 
-	public void cleanup () {
-		Lwjgl3Cursor.disposeSystemCursors();
-		audio.dispose();
-		errorCallback.free();
-		errorCallback = null;
-		if (glDebugCallback != null) {
-			glDebugCallback.free();
-			glDebugCallback = null;
-		}
-		GLFW.glfwTerminate();
-	}
-
 	@Override
 	public ApplicationListener getApplicationListener () {
 		return currentWindow.getListener();
