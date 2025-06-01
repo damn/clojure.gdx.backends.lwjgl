@@ -41,8 +41,6 @@ import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.math.GridPoint2;
 
 public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
-	public static PrintStream errorStream = System.err;
-
 	public boolean disableAudio = false;
 
 	/** The maximum number of threads to use for network requests. Default is {@link Integer#MAX_VALUE}. */

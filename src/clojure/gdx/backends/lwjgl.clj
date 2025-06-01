@@ -8,14 +8,17 @@
                                              Lwjgl3Clipboard
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
                                              Lwjgl3Graphics$Lwjgl3Monitor
-                                             Lwjgl3WindowConfiguration
+                                             Lwjgl3NativesLoader
                                              Lwjgl3Net
+                                             Lwjgl3WindowConfiguration
                                              Sync)
            (com.badlogic.gdx.backends.lwjgl3.audio.mock MockAudio)
            (com.badlogic.gdx.utils SharedLibraryLoader
                                    Os)
            (java.awt Taskbar
                      Toolkit)
+           (org.lwjgl.glfw GLFW
+                           GLFWErrorCallback)
            (org.lwjgl.system Configuration)))
 
 (defn- display-mode->map [^Lwjgl3Graphics$Lwjgl3DisplayMode display-mode]
@@ -45,33 +48,47 @@
     (.newInstance constructor
                   (into-array Object [monitor-handle virtual-x virtual-y name]))))
 
+(defn- initialize-glfw! []
+  (when-not Lwjgl3Application/errorCallback
+    (Lwjgl3NativesLoader/load)
+    (set! Lwjgl3Application/errorCallback (GLFWErrorCallback/createPrint System/err))
+    (GLFW/glfwSetErrorCallback Lwjgl3Application/errorCallback)
+    (when (= SharedLibraryLoader/os Os/MacOsX)
+      (GLFW/glfwInitHint GLFW/GLFW_ANGLE_PLATFORM_TYPE
+                         GLFW/GLFW_ANGLE_PLATFORM_TYPE_METAL))
+    (GLFW/glfwInitHint GLFW/GLFW_JOYSTICK_HAT_BUTTONS
+                       GLFW/GLFW_FALSE)
+    (when-not (GLFW/glfwInit)
+      ; throw new GdxRuntimeException("Unable to initialize GLFW");
+      (throw (Exception. "Unable to initialize GLFW")))))
+
 (defn display-mode
   ([monitor]
-   (Lwjgl3Application/initializeGlfw)
+   (initialize-glfw!)
    (display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayMode (map->monitor monitor))))
   ([]
-   (Lwjgl3Application/initializeGlfw)
+   (initialize-glfw!)
    (display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayMode))))
 
 (defn display-modes
   "The available display-modes of the primary or the given monitor."
   ([monitor]
-   (Lwjgl3Application/initializeGlfw)
+   (initialize-glfw!)
    (map display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayModes (map->monitor monitor))))
   ([]
-   (Lwjgl3Application/initializeGlfw)
+   (initialize-glfw!)
    (map display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayModes))))
 
 (defn primary-monitor
   "the primary monitor."
   []
-  (Lwjgl3Application/initializeGlfw)
+  (initialize-glfw!)
   (monitor->map (Lwjgl3ApplicationConfiguration/getPrimaryMonitor)))
 
 (defn monitors
   "The connected monitors."
   []
-  (Lwjgl3Application/initializeGlfw)
+  (initialize-glfw!)
   (map monitor->map (Lwjgl3ApplicationConfiguration/getMonitors)))
 
 (defn- k->glversion [gl-version]
@@ -201,7 +218,7 @@
     (when (= (.glEmulation config)
              Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20)
       (load-angle!))
-    (Lwjgl3Application/initializeGlfw)
+    (initialize-glfw!)
     (let [application (Lwjgl3Application.)]
       (.setApplicationLogger application (Lwjgl3ApplicationLogger.))
       (set! (.config application) config)

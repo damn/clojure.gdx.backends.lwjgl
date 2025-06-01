@@ -78,20 +78,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	public static Callback glDebugCallback;
 	public Sync sync;
 
-	public static void initializeGlfw () {
-		if (errorCallback == null) {
-			Lwjgl3NativesLoader.load();
-			errorCallback = GLFWErrorCallback.createPrint(Lwjgl3ApplicationConfiguration.errorStream);
-			GLFW.glfwSetErrorCallback(errorCallback);
-			if (SharedLibraryLoader.os == Os.MacOsX)
-				GLFW.glfwInitHint(GLFW.GLFW_ANGLE_PLATFORM_TYPE, GLFW.GLFW_ANGLE_PLATFORM_TYPE_METAL);
-			GLFW.glfwInitHint(GLFW.GLFW_JOYSTICK_HAT_BUTTONS, GLFW.GLFW_FALSE);
-			if (!GLFW.glfwInit()) {
-				throw new GdxRuntimeException("Unable to initialize GLFW");
-			}
-		}
-	}
-
 	static void postLoadANGLE () {
 		try {
 			Class angleLoader = Class.forName("com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader");
