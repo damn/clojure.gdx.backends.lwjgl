@@ -239,7 +239,19 @@
       (set! Gdx/net (.net application))
       (set! (.clipboard application) (Lwjgl3Clipboard.))
       (set! (.sync application) (Sync.))
-      (.setup application listener config))))
+      (let [this application
+            window (.createWindow this config listener 0)]
+        (when (= (.glEmulation config)
+                 Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20)
+          (Lwjgl3Application/postLoadANGLE))
+        (.add (.windows this) window)
+        (try
+         (.loop this)
+         (.cleanupWindows this)
+         (catch Throwable t
+           (throw t))
+         (finally
+          (.cleanup this)))))))
 
 (defn window
   "Creates a new Lwjgl3Window using the provided listener and Lwjgl3WindowConfiguration. This function only just instantiates a Lwjgl3Window and returns immediately. The actual window creation is postponed with Application.postRunnable(Runnable) until after all existing windows are updated."

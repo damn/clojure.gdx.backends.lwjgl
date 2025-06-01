@@ -60,7 +60,7 @@ import com.badlogic.gdx.utils.SharedLibraryLoader;
 
 public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	public Lwjgl3ApplicationConfiguration config;
-	final Array<Lwjgl3Window> windows = new Array<Lwjgl3Window>();
+	public final Array<Lwjgl3Window> windows = new Array<Lwjgl3Window>();
 	public volatile Lwjgl3Window currentWindow;
 	public Lwjgl3Audio audio;
 	public Files files;
@@ -78,7 +78,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	public static Callback glDebugCallback;
 	public Sync sync;
 
-	static void postLoadANGLE () {
+	public static void postLoadANGLE () {
 		try {
 			Class angleLoader = Class.forName("com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader");
 			Method load = angleLoader.getMethod("postGlfwInit");
@@ -93,24 +93,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	public Lwjgl3Application () {
 	}
 
-	public void setup (ApplicationListener listener, Lwjgl3ApplicationConfiguration config) {
-		Lwjgl3Window window = createWindow(config, listener, 0);
-		if (config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.ANGLE_GLES20) postLoadANGLE();
-		windows.add(window);
-		try {
-			loop();
-			cleanupWindows();
-		} catch (Throwable t) {
-			if (t instanceof RuntimeException)
-				throw (RuntimeException)t;
-			else
-				throw new GdxRuntimeException(t);
-		} finally {
-			cleanup();
-		}
-	}
-
-	protected void loop () {
+	public void loop () {
 		Array<Lwjgl3Window> closedWindows = new Array<Lwjgl3Window>();
 		while (running && windows.size > 0) {
 			// FIXME put it on a separate thread
@@ -183,7 +166,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		}
 	}
 
-	protected void cleanupWindows () {
+	public void cleanupWindows () {
 		synchronized (lifecycleListeners) {
 			for (LifecycleListener lifecycleListener : lifecycleListeners) {
 				lifecycleListener.pause();
@@ -196,7 +179,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		windows.clear();
 	}
 
-	protected void cleanup () {
+	public void cleanup () {
 		Lwjgl3Cursor.disposeSystemCursors();
 		audio.dispose();
 		errorCallback.free();
@@ -377,7 +360,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		return createWindow(appConfig, listener, windows.get(0).getWindowHandle());
 	}
 
-	private Lwjgl3Window createWindow (final Lwjgl3ApplicationConfiguration config, ApplicationListener listener,
+	public Lwjgl3Window createWindow (final Lwjgl3ApplicationConfiguration config, ApplicationListener listener,
 		final long sharedContext) {
 		final Lwjgl3Window window = new Lwjgl3Window(listener, lifecycleListeners, config, this);
 		if (sharedContext == 0) {
@@ -395,7 +378,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		return window;
 	}
 
-	void createWindow (Lwjgl3Window window, Lwjgl3ApplicationConfiguration config, long sharedContext) {
+	public void createWindow (Lwjgl3Window window, Lwjgl3ApplicationConfiguration config, long sharedContext) {
 		long windowHandle = createGlfwWindow(config, sharedContext);
 		window.create(windowHandle);
 		window.setVisible(config.initialVisible);
