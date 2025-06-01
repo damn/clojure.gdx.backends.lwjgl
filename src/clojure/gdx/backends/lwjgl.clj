@@ -196,20 +196,10 @@
   object)
 
 (defn- load-angle! []
-  (eval '(com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader/load))
-  ;	public static void loadANGLE () {
-  ;		try {
-  ;			Class angleLoader = Class.forName("com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader");
-  ;			Method load = angleLoader.getMethod("load");
-  ;			load.invoke(angleLoader);
-  ;		} catch (ClassNotFoundException t) {
-  ;			return;
-  ;		} catch (Throwable t) {
-  ;			throw new GdxRuntimeException("Couldn't load ANGLE.", t);
-  ;		}
-	;}
+  (eval '(com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader/load)))
 
-  )
+(defn- post-load-angle! []
+  (eval '(com.badlogic.gdx.backends.lwjgl3.angle.ANGLELoader/postGlfwInit)))
 
 (defn application [config listener]
   (let [config (configure-object (Lwjgl3ApplicationConfiguration.)
@@ -243,7 +233,7 @@
             window (.createWindow this config listener 0)]
         (when (= (.glEmulation config)
                  Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20)
-          (Lwjgl3Application/postLoadANGLE))
+          (post-load-angle!))
         (.add (.windows this) window)
         (try
          (.loop this)
