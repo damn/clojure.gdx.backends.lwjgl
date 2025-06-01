@@ -47,25 +47,31 @@
 
 (defn display-mode
   ([monitor]
+   (Lwjgl3Application/initializeGlfw)
    (display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayMode (map->monitor monitor))))
   ([]
+   (Lwjgl3Application/initializeGlfw)
    (display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayMode))))
 
 (defn display-modes
   "The available display-modes of the primary or the given monitor."
   ([monitor]
+   (Lwjgl3Application/initializeGlfw)
    (map display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayModes (map->monitor monitor))))
   ([]
+   (Lwjgl3Application/initializeGlfw)
    (map display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayModes))))
 
 (defn primary-monitor
   "the primary monitor."
   []
+  (Lwjgl3Application/initializeGlfw)
   (monitor->map (Lwjgl3ApplicationConfiguration/getPrimaryMonitor)))
 
 (defn monitors
   "The connected monitors."
   []
+  (Lwjgl3Application/initializeGlfw)
   (map monitor->map (Lwjgl3ApplicationConfiguration/getMonitors)))
 
 (defn- k->glversion [gl-version]
