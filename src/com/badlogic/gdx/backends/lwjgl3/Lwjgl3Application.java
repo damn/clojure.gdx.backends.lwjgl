@@ -321,10 +321,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		return new DefaultLwjgl3Input(window);
 	}
 
-	public Files createFiles () {
-		return new Lwjgl3Files();
-	}
-
 	/** Creates a new {@link Lwjgl3Window} using the provided listener and {@link Lwjgl3WindowConfiguration}.
 	 *
 	 * This function only just instantiates a {@link Lwjgl3Window} and returns immediately. The actual window creation is postponed

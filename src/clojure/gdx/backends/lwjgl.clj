@@ -7,6 +7,7 @@
                                              Lwjgl3ApplicationConfiguration$GLEmulation
                                              Lwjgl3Clipboard
                                              Lwjgl3Cursor
+                                             Lwjgl3Files
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
                                              Lwjgl3Graphics$Lwjgl3Monitor
                                              Lwjgl3Net
@@ -263,7 +264,7 @@
            (.log application "Lwjgl3Application" "Couldn't initialize audio, disabling audio" t)
            (set! (.audio application) (MockAudio.)))))
       (set! Gdx/audio (.audio application))
-      (set! (.files application) (.createFiles application))
+      (set! (.files application) (Lwjgl3Files.))
       (set! Gdx/files (.files application))
       (set! (.net application) (Lwjgl3Net. config))
       (set! Gdx/net (.net application))
