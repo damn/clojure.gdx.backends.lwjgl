@@ -8,12 +8,12 @@
                                              Lwjgl3Clipboard
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
                                              Lwjgl3Graphics$Lwjgl3Monitor
-                                             Lwjgl3NativesLoader
                                              Lwjgl3Net
                                              Lwjgl3WindowConfiguration
                                              Sync)
            (com.badlogic.gdx.backends.lwjgl3.audio.mock MockAudio)
-           (com.badlogic.gdx.utils SharedLibraryLoader
+           (com.badlogic.gdx.utils GdxNativesLoader
+                                   SharedLibraryLoader
                                    Os)
            (java.awt Taskbar
                      Toolkit)
@@ -48,9 +48,13 @@
     (.newInstance constructor
                   (into-array Object [monitor-handle virtual-x virtual-y name]))))
 
+(defn- Lwjgl3NativesLoader []
+  (System/setProperty "org.lwjgl.input.Mouse.allowNegativeMouseCoords", "true")
+  (GdxNativesLoader/load))
+
 (defn- initialize-glfw! []
   (when-not Lwjgl3Application/errorCallback
-    (Lwjgl3NativesLoader/load)
+    (Lwjgl3NativesLoader)
     (set! Lwjgl3Application/errorCallback (GLFWErrorCallback/createPrint System/err))
     (GLFW/glfwSetErrorCallback Lwjgl3Application/errorCallback)
     (when (= SharedLibraryLoader/os Os/MacOsX)
