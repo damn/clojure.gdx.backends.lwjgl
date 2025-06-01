@@ -176,9 +176,6 @@
     (set-key-fn object k v))
   object)
 
-; TODO tests ! see whats there?
-; logging ? etc. ANGLE_GLES20 ?
-
 (defn application [config listener]
   (let [config (configure-object (Lwjgl3ApplicationConfiguration.)
                                  config
