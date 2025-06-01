@@ -11,5 +11,11 @@
                         :mac-os {:glfw-async? true}}
                        (proxy [com.badlogic.gdx.ApplicationAdapter] [])))
 
-  (lwjgl/application {:mac-os {:glfw-async? true}}
+  (lwjgl/application {:mac-os {:glfw-async? true}
+
+                      ;:opengl-emulation {:gl-version :angle-gles20
+                      ;                   :gles-3-major-version 3
+                      ;                   :gles-3-minor-version 2}
+
+                      }
                      (proxy [com.badlogic.gdx.ApplicationAdapter] [])))

@@ -4,6 +4,8 @@
   :dependencies [[org.clojure/clojure "1.12.0"]
                  [com.badlogicgames.gdx/gdx-platform       ~libgdx-version :classifier "natives-desktop"]
 
+                 ; [com.badlogicgames.gdx/gdx-lwjgl3-angle   ~libgdx-version]
+
                  ;; 078ba3ca5e13b2ede4c4051f300f6f262a42dd00
                  ;;[com.badlogicgames.gdx/gdx-backend-lwjgl3 ~libgdx-version]
                  [com.badlogicgames.gdx/gdx "1.13.5"]
