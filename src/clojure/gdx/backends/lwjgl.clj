@@ -1,3 +1,7 @@
+; The problem with re-implementing it in clojure is that we are still need to
+; reify java interfaces Graphics, Input and return libgdx e.g. Graphics$DisplayMode
+; or implement `com.badlogic.gdx.Application` interface ....
+; so what is the point ?
 (ns clojure.gdx.backends.lwjgl
   (:require [clojure.java.io :as io])
   (:import (com.badlogic.gdx ApplicationLogger
