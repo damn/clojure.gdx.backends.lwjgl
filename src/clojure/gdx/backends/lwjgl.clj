@@ -26,6 +26,9 @@
   []
   (map utils/monitor->map (Lwjgl3ApplicationConfiguration/getMonitors)))
 
+; => listener is part of config and just a bunch of functions ..... with defaults can do
+; * 1. try not to set Gdx global state (need functional alternatives in Gdx ?)
+; * 2. where do I create Gdx ?
 (defn application [config listener]
   (Lwjgl3Application. listener
                       (utils/create-application-config config)))

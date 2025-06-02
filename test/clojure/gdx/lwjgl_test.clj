@@ -2,6 +2,7 @@
   (:require [clojure.gdx.backends.lwjgl :as lwjgl]))
 
 ; TODO FIXME can't call display-mode without setting GLFW async first
+; => its inutils now!
 
 (defn -main []
   #_(let [display-mode (lwjgl/display-mode)]
