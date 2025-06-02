@@ -84,7 +84,7 @@
 (defn set-glfw-async! []
   (.set Configuration/GLFW_LIBRARY_NAME "glfw_async"))
 
-(defn set-dock-icon! [io-resource]
+(defn set-taskbar-icon! [io-resource]
   (.setIconImage (Taskbar/getTaskbar)
                  (.getImage (Toolkit/getDefaultToolkit)
                             (io/resource io-resource))))
@@ -97,7 +97,7 @@
                 (when glfw-async?
                   (set-glfw-async!))
                 (when dock-icon
-                  (set-dock-icon! dock-icon))))
+                  (set-taskbar-icon! dock-icon))))
     :audio (.setAudioConfig object
                             (int (:simultaneous-sources v))
                             (int (:buffer-size         v))
