@@ -10,5 +10,6 @@
     (lwjgl/application {:fullscreen-mode display-mode
                         :mac-os {:glfw-async? true}}))
 
-  (lwjgl/application {:mac-os {:glfw-async? true}})
+  (lwjgl/application {:mac-os {:glfw-async? true}}
+                     (proxy [com.badlogic.gdx.ApplicationAdapter] []))
   )
