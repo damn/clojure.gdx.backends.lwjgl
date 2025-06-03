@@ -46,9 +46,9 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	/** The maximum number of threads to use for network requests. Default is {@link Integer#MAX_VALUE}. */
 	int maxNetThreads = Integer.MAX_VALUE;
 
-	int audioDeviceSimultaneousSources = 16;
-	int audioDeviceBufferSize = 512;
-	int audioDeviceBufferCount = 9;
+	public int audioDeviceSimultaneousSources = 16;
+	public int audioDeviceBufferSize = 512;
+	public int audioDeviceBufferCount = 9;
 
 	public enum GLEmulation {
 		ANGLE_GLES20, GL20, GL30, GL31, GL32

@@ -1,7 +1,3 @@
-; The problem with re-implementing it in clojure is that we are still need to
-; reify java interfaces Graphics, Input and return libgdx e.g. Graphics$DisplayMode
-; or implement `com.badlogic.gdx.Application` interface ....
-; so what is the point ?
 (ns clojure.gdx.backends.lwjgl
   (:require [clojure.java.io :as io])
   (:import (com.badlogic.gdx ApplicationLogger
@@ -17,6 +13,7 @@
                                              Lwjgl3Net
                                              Lwjgl3WindowConfiguration
                                              Sync)
+           (com.badlogic.gdx.backends.lwjgl3.audio OpenALLwjgl3Audio)
            (com.badlogic.gdx.backends.lwjgl3.audio.mock MockAudio)
            (com.badlogic.gdx.utils GdxNativesLoader
                                    SharedLibraryLoader
@@ -246,6 +243,11 @@
     (set! Lwjgl3Application/glDebugCallback nil))
   (GLFW/glfwTerminate))
 
+(defn- createAudio [config]
+  (OpenALLwjgl3Audio. (.audioDeviceSimultaneousSources config)
+                      (.audioDeviceBufferCount         config)
+                      (.audioDeviceBufferSize          config)))
+
 (defn application [config listener]
   (let [config (configure-object (Lwjgl3ApplicationConfiguration.)
                                  config
@@ -263,7 +265,7 @@
       (if (.disableAudio config)
         (set! (.audio application) (MockAudio.))
         (try
-         (set! (.audio application) (.createAudio application config))
+         (set! (.audio application) (createAudio config))
          (catch Throwable t
            (.log application "Lwjgl3Application" "Couldn't initialize audio, disabling audio" t)
            (set! (.audio application) (MockAudio.)))))

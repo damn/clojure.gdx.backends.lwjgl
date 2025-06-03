@@ -311,12 +311,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	}
 
 	@Override
-	public Lwjgl3Audio createAudio (Lwjgl3ApplicationConfiguration config) {
-		return new OpenALLwjgl3Audio(config.audioDeviceSimultaneousSources, config.audioDeviceBufferCount,
-			config.audioDeviceBufferSize);
-	}
-
-	@Override
 	public Lwjgl3Input createInput (Lwjgl3Window window) {
 		return new DefaultLwjgl3Input(window);
 	}
