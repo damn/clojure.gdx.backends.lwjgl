@@ -284,14 +284,19 @@
          (finally
           (cleanup! this)))))))
 
-(defn window
-  "Creates a new Lwjgl3Window using the provided listener and Lwjgl3WindowConfiguration. This function only just instantiates a Lwjgl3Window and returns immediately. The actual window creation is postponed with Application.postRunnable(Runnable) until after all existing windows are updated."
-  [application listener config]
-  (Lwjgl3Application/.newWindow application
-                                listener ; TODO window-listener
-                                (configure-object (Lwjgl3WindowConfiguration.)
-                                                  config
-                                                  set-window-config-key!)))
+(defn new-window
+  "Creates a new `Lwjgl3Window` using the provided listener and `Lwjgl3WindowConfiguration`.
+
+  This function only just instantiates a `Lwjgl3Window` and returns immediately. The actual window creation is postponed with `Application.postRunnable(Runnable)` until after all existing windows are updated."
+  [application listener window-config]
+  (let [window-config (configure-object (Lwjgl3WindowConfiguration.)
+                                        window-config
+                                        set-window-config-key!)
+        appConfig (Lwjgl3ApplicationConfiguration/copy (.config application))]
+    (.setWindowConfiguration appConfig window-config)
+    (if (nil? (.title appConfig))
+      (set! (.title appConfig) (.getSimpleName (class listener))))
+    (.createWindow application appConfig listener (.getWindowHandle (.get (.windows application) 0)))))
 
 (defn set-gl-debug-message-control
   "Enables or disables GL debug messages for the specified severity level. Returns false if the severity level could not be set (e.g. the NOTIFICATION level is not supported by the ARB and AMD extensions). See Lwjgl3ApplicationConfiguration.enableGLDebugOutput(boolean, PrintStream)"

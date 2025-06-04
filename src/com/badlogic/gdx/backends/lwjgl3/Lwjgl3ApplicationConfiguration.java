@@ -77,7 +77,7 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	boolean debug = false;
 	PrintStream debugStream = System.err;
 
-	static Lwjgl3ApplicationConfiguration copy (Lwjgl3ApplicationConfiguration config) {
+	public static Lwjgl3ApplicationConfiguration copy (Lwjgl3ApplicationConfiguration config) {
 		Lwjgl3ApplicationConfiguration copy = new Lwjgl3ApplicationConfiguration();
 		copy.set(config);
 		return copy;

@@ -44,7 +44,7 @@ public class Lwjgl3WindowConfiguration {
 	boolean initialVisible = true;
 	boolean vSyncEnabled = true;
 
-	void setWindowConfiguration (Lwjgl3WindowConfiguration config) {
+	public void setWindowConfiguration (Lwjgl3WindowConfiguration config) {
 		windowX = config.windowX;
 		windowY = config.windowY;
 		windowWidth = config.windowWidth;
