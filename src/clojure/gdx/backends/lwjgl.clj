@@ -339,6 +339,16 @@
     (GLFW/glfwWindowHint GLFW/GLFW_OPENGL_DEBUG_CONTEXT GLFW/GLFW_TRUE))
 
   (let [windowHandle (create-window-handle config sharedContextWindow)]
+    (when (zero? windowHandle)
+      (throw (Exception. "Couldn't create window")))
+    ; throw new GdxRuntimeException("Couldn't create window");
+
+    (Lwjgl3Window/setSizeLimits windowHandle
+                                (.windowMinWidth  config)
+                                (.windowMinHeight config)
+                                (.windowMaxWidth  config)
+                                (.windowMaxHeight config))
+
     (Lwjgl3Application/createGlfwWindow config
                                         sharedContextWindow
                                         windowHandle)))

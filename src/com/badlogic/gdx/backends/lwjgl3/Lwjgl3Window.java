@@ -374,7 +374,7 @@ public class Lwjgl3Window implements Disposable {
 		setSizeLimits(windowHandle, minWidth, minHeight, maxWidth, maxHeight);
 	}
 
-	static void setSizeLimits (long windowHandle, int minWidth, int minHeight, int maxWidth, int maxHeight) {
+	public static void setSizeLimits (long windowHandle, int minWidth, int minHeight, int maxWidth, int maxHeight) {
 		GLFW.glfwSetWindowSizeLimits(windowHandle, minWidth > -1 ? minWidth : GLFW.GLFW_DONT_CARE,
 			minHeight > -1 ? minHeight : GLFW.GLFW_DONT_CARE, maxWidth > -1 ? maxWidth : GLFW.GLFW_DONT_CARE,
 			maxHeight > -1 ? maxHeight : GLFW.GLFW_DONT_CARE);

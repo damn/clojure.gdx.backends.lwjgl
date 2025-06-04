@@ -29,7 +29,7 @@ public class Lwjgl3WindowConfiguration {
 	int windowY = -1;
 	public int windowWidth = 640;
 	public int windowHeight = 480;
-	int windowMinWidth = -1, windowMinHeight = -1, windowMaxWidth = -1, windowMaxHeight = -1;
+	public int windowMinWidth = -1, windowMinHeight = -1, windowMaxWidth = -1, windowMaxHeight = -1;
 	public boolean windowResizable = true;
 	public boolean windowDecorated = true;
 	public boolean windowMaximized = false;

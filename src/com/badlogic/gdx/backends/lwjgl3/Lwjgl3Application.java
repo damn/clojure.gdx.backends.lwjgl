@@ -316,11 +316,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	}
 
 	public static long createGlfwWindow (Lwjgl3ApplicationConfiguration config, long sharedContextWindow, long windowHandle) {
-		if (windowHandle == 0) {
-			throw new GdxRuntimeException("Couldn't create window");
-		}
-		Lwjgl3Window.setSizeLimits(windowHandle, config.windowMinWidth, config.windowMinHeight, config.windowMaxWidth,
-			config.windowMaxHeight);
 		if (config.fullscreenMode == null) {
 			if (GLFW.glfwGetPlatform() != GLFW.GLFW_PLATFORM_WAYLAND) {
 				if (config.windowX == -1 && config.windowY == -1) { // i.e., center the window
