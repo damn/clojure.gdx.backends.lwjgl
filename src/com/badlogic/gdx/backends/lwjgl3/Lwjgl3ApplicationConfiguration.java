@@ -61,7 +61,7 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	public int r = 8, g = 8, b = 8, a = 8;
 	public int depth = 16, stencil = 0;
 	public int samples = 0;
-	boolean transparentFramebuffer;
+	public boolean transparentFramebuffer;
 
 	int idleFPS = 60;
 	int foregroundFPS = 0;
@@ -74,7 +74,7 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 
 	HdpiMode hdpiMode = HdpiMode.Logical;
 
-	boolean debug = false;
+	public boolean debug = false;
 	PrintStream debugStream = System.err;
 
 	public static Lwjgl3ApplicationConfiguration copy (Lwjgl3ApplicationConfiguration config) {

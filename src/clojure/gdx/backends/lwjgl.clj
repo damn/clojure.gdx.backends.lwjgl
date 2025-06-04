@@ -244,6 +244,53 @@
     (set! Lwjgl3Application/glDebugCallback nil))
   (GLFW/glfwTerminate))
 
+(defn- create-window-handle [config sharedContextWindow]
+  (if (.fullscreenMode config)
+    (do
+     (GLFW/glfwWindowHint GLFW/GLFW_REFRESH_RATE (.refreshRate (.fullscreenMode config)))
+     (let [windowHandle (GLFW/glfwCreateWindow (.width (.fullscreenMode config))
+                                               (.height (.fullscreenMode config))
+                                               (.title config)
+                                               (.getMonitor (.fullscreenMode config))
+                                               sharedContextWindow)]
+       ; On Ubuntu >= 22.04 with Nvidia GPU drivers and X11 display server there's a bug with EGL Context API
+       ; If the windows creation has failed for this reason try to create it again with the native context
+       (if (and (zero? windowHandle)
+                (= (.glEmulation config)
+                   Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20))
+         (do
+          (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_CREATION_API GLFW/GLFW_NATIVE_CONTEXT_API)
+          (let [windowHandle (GLFW/glfwCreateWindow (.width (.fullscreenMode config))
+                                                    (.height (.fullscreenMode config))
+                                                    (.title config)
+                                                    (.getMonitor (.fullscreenMode config))
+                                                    sharedContextWindow)]
+            windowHandle))
+         windowHandle)))
+    (do
+     (GLFW/glfwWindowHint GLFW/GLFW_DECORATED
+                          (if (.windowDecorated config)
+                            GLFW/GLFW_TRUE
+                            GLFW/GLFW_FALSE))
+     (let [windowHandle (GLFW/glfwCreateWindow (.windowWidth config)
+                                               (.windowHeight config)
+                                               (.title config)
+                                               0
+                                               sharedContextWindow)]
+       ; On Ubuntu >= 22.04 with Nvidia GPU drivers and X11 display server there's a bug with EGL Context API
+       ; If the windows creation has failed for this reason try to create it again with the native context
+       (if (and (zero? windowHandle)
+                (= (.glEmulation config)
+                   Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20))
+         (do
+          (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_CREATION_API GLFW/GLFW_NATIVE_CONTEXT_API)
+          (let [windowHandle (GLFW/glfwCreateWindow (.windowWidth config)
+                                                    (.windowHeight config)
+                                                    (.title config)
+                                                    0
+                                                    sharedContextWindow)]
+            windowHandle))
+         windowHandle)))))
 
 (defn- createGlfwWindow [config sharedContextWindow]
   (GLFW/glfwDefaultWindowHints)
@@ -264,6 +311,7 @@
   (GLFW/glfwWindowHint GLFW/GLFW_STENCIL_BITS (.stencil config))
   (GLFW/glfwWindowHint GLFW/GLFW_DEPTH_BITS   (.depth   config))
   (GLFW/glfwWindowHint GLFW/GLFW_SAMPLES      (.samples config))
+
   (let [glEmulation (.glEmulation config)]
     (if (or (= glEmulation Lwjgl3ApplicationConfiguration$GLEmulation/GL30)
             (= glEmulation Lwjgl3ApplicationConfiguration$GLEmulation/GL31)
@@ -284,7 +332,16 @@
 				(GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MAJOR 2)
 				(GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MINOR 0)))))
 
-  (Lwjgl3Application/createGlfwWindow config sharedContextWindow))
+  (when (.transparentFramebuffer config)
+    (GLFW/glfwWindowHint GLFW/GLFW_TRANSPARENT_FRAMEBUFFER GLFW/GLFW_TRUE))
+
+  (when (.debug config)
+    (GLFW/glfwWindowHint GLFW/GLFW_OPENGL_DEBUG_CONTEXT GLFW/GLFW_TRUE))
+
+  (let [windowHandle (create-window-handle config sharedContextWindow)]
+    (Lwjgl3Application/createGlfwWindow config
+                                        sharedContextWindow
+                                        windowHandle)))
 
 (defn- createWindow* [application window config sharedContext]
   (let [windowHandle (createGlfwWindow config sharedContext)]
