@@ -12,6 +12,7 @@
                                              Lwjgl3Graphics$Lwjgl3DisplayMode
                                              Lwjgl3Graphics$Lwjgl3Monitor
                                              Lwjgl3Net
+                                             Lwjgl3Window
                                              Lwjgl3WindowConfiguration
                                              Sync)
            (com.badlogic.gdx.utils GdxNativesLoader
@@ -242,6 +243,20 @@
     (set! Lwjgl3Application/glDebugCallback nil))
   (GLFW/glfwTerminate))
 
+(defn- createWindow [application config listener sharedContext]
+  (let [window (Lwjgl3Window. listener
+                              (.lifecycleListeners application)
+                              config
+                              application)]
+    (if (zero? sharedContext)
+			; the main window is created immediately
+      (.createWindow application window config sharedContext)
+			; creation of additional windows is deferred to avoid GL context trouble
+      (.postRunnable application (fn []
+                                   (.createWindow application window config sharedContext)
+                                   (.add (.windows application) window))))
+    window))
+
 (defn application [config listener]
   (let [config (configure-object (Lwjgl3ApplicationConfiguration.)
                                  config
@@ -271,7 +286,7 @@
       (set! (.clipboard application) (Lwjgl3Clipboard.))
       (set! (.sync application) (Sync.))
       (let [this application
-            window (.createWindow this config listener 0)]
+            window (createWindow this config listener 0)]
         (when (= (.glEmulation config)
                  Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20)
           (post-load-angle!))
@@ -296,7 +311,7 @@
     (.setWindowConfiguration appConfig window-config)
     (if (nil? (.title appConfig))
       (set! (.title appConfig) (.getSimpleName (class listener))))
-    (.createWindow application appConfig listener (.getWindowHandle (.get (.windows application) 0)))))
+    (createWindow application appConfig listener (.getWindowHandle (.get (.windows application) 0)))))
 
 (defn set-gl-debug-message-control
   "Enables or disables GL debug messages for the specified severity level. Returns false if the severity level could not be set (e.g. the NOTIFICATION level is not supported by the ARB and AMD extensions). See Lwjgl3ApplicationConfiguration.enableGLDebugOutput(boolean, PrintStream)"

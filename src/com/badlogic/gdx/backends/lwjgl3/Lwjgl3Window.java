@@ -188,7 +188,7 @@ public class Lwjgl3Window implements Disposable {
 		}
 	};
 
-	Lwjgl3Window (ApplicationListener listener, Array<LifecycleListener> lifecycleListeners, Lwjgl3ApplicationConfiguration config,
+	public Lwjgl3Window (ApplicationListener listener, Array<LifecycleListener> lifecycleListeners, Lwjgl3ApplicationConfiguration config,
 		Lwjgl3ApplicationBase application) {
 		this.listener = listener;
 		this.lifecycleListeners = lifecycleListeners;

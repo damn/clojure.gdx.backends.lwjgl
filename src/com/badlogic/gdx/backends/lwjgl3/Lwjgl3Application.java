@@ -315,24 +315,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		return new DefaultLwjgl3Input(window);
 	}
 
-	public Lwjgl3Window createWindow (final Lwjgl3ApplicationConfiguration config, ApplicationListener listener,
-		final long sharedContext) {
-		final Lwjgl3Window window = new Lwjgl3Window(listener, lifecycleListeners, config, this);
-		if (sharedContext == 0) {
-			// the main window is created immediately
-			createWindow(window, config, sharedContext);
-		} else {
-			// creation of additional windows is deferred to avoid GL context trouble
-			postRunnable(new Runnable() {
-				public void run () {
-					createWindow(window, config, sharedContext);
-					windows.add(window);
-				}
-			});
-		}
-		return window;
-	}
-
 	public void createWindow (Lwjgl3Window window, Lwjgl3ApplicationConfiguration config, long sharedContext) {
 		long windowHandle = createGlfwWindow(config, sharedContext);
 		window.create(windowHandle);
