@@ -55,8 +55,8 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	}
 
 	public GLEmulation glEmulation = GLEmulation.GL20;
-	int gles30ContextMajorVersion = 3;
-	int gles30ContextMinorVersion = 2;
+	public int gles30ContextMajorVersion = 3;
+	public int gles30ContextMinorVersion = 2;
 
 	public int r = 8, g = 8, b = 8, a = 8;
 	public int depth = 16, stencil = 0;

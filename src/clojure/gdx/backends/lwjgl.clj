@@ -264,6 +264,25 @@
   (GLFW/glfwWindowHint GLFW/GLFW_STENCIL_BITS (.stencil config))
   (GLFW/glfwWindowHint GLFW/GLFW_DEPTH_BITS   (.depth   config))
   (GLFW/glfwWindowHint GLFW/GLFW_SAMPLES      (.samples config))
+  (let [glEmulation (.glEmulation config)]
+    (if (or (= glEmulation Lwjgl3ApplicationConfiguration$GLEmulation/GL30)
+            (= glEmulation Lwjgl3ApplicationConfiguration$GLEmulation/GL31)
+            (= glEmulation Lwjgl3ApplicationConfiguration$GLEmulation/GL32))
+      (do
+       (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MAJOR (.gles30ContextMajorVersion config))
+       (GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MINOR (.gles30ContextMinorVersion config))
+       (when (= SharedLibraryLoader/os Os/MacOsX)
+         ; hints mandatory on OS X for GL 3.2+ context creation, but fail on Windows if the
+         ; WGL_ARB_create_context extension is not available
+         ; see: http://www.glfw.org/docs/latest/compat.html
+         (GLFW/glfwWindowHint GLFW/GLFW_OPENGL_FORWARD_COMPAT GLFW/GLFW_TRUE)
+         (GLFW/glfwWindowHint GLFW/GLFW_OPENGL_PROFILE        GLFW/GLFW_OPENGL_CORE_PROFILE)))
+      (do
+       (when (= glEmulation Lwjgl3ApplicationConfiguration$GLEmulation/ANGLE_GLES20)
+				(GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_CREATION_API GLFW/GLFW_EGL_CONTEXT_API)
+				(GLFW/glfwWindowHint GLFW/GLFW_CLIENT_API           GLFW/GLFW_OPENGL_ES_API)
+				(GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MAJOR 2)
+				(GLFW/glfwWindowHint GLFW/GLFW_CONTEXT_VERSION_MINOR 0)))))
 
   (Lwjgl3Application/createGlfwWindow config sharedContextWindow))
 

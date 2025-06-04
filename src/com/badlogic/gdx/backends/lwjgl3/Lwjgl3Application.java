@@ -316,27 +316,6 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	}
 
 	public static long createGlfwWindow (Lwjgl3ApplicationConfiguration config, long sharedContextWindow) {
-		if (config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.GL30
-			|| config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.GL31
-			|| config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.GL32) {
-			GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, config.gles30ContextMajorVersion);
-			GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, config.gles30ContextMinorVersion);
-			if (SharedLibraryLoader.os == Os.MacOsX) {
-				// hints mandatory on OS X for GL 3.2+ context creation, but fail on Windows if the
-				// WGL_ARB_create_context extension is not available
-				// see: http://www.glfw.org/docs/latest/compat.html
-				GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, GLFW.GLFW_TRUE);
-				GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
-			}
-		} else {
-			if (config.glEmulation == Lwjgl3ApplicationConfiguration.GLEmulation.ANGLE_GLES20) {
-				GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_CREATION_API, GLFW.GLFW_EGL_CONTEXT_API);
-				GLFW.glfwWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_OPENGL_ES_API);
-				GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 2);
-				GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 0);
-			}
-		}
-
 		if (config.transparentFramebuffer) {
 			GLFW.glfwWindowHint(GLFW.GLFW_TRANSPARENT_FRAMEBUFFER, GLFW.GLFW_TRUE);
 		}
