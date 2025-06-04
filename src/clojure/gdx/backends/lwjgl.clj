@@ -244,8 +244,31 @@
     (set! Lwjgl3Application/glDebugCallback nil))
   (GLFW/glfwTerminate))
 
+
+(defn- createGlfwWindow [config sharedContextWindow]
+  (GLFW/glfwDefaultWindowHints)
+  (GLFW/glfwWindowHint GLFW/GLFW_VISIBLE GLFW/GLFW_FALSE)
+  (GLFW/glfwWindowHint GLFW/GLFW_RESIZABLE (if (.windowResizable config)
+                                             GLFW/GLFW_TRUE
+                                             GLFW/GLFW_FALSE))
+  (GLFW/glfwWindowHint GLFW/GLFW_MAXIMIZED (if (.windowMaximized config)
+                                             GLFW/GLFW_TRUE
+                                             GLFW/GLFW_FALSE))
+  (GLFW/glfwWindowHint GLFW/GLFW_AUTO_ICONIFY (if (.autoIconify config)
+                                                GLFW/GLFW_TRUE
+                                                GLFW/GLFW_FALSE))
+  (GLFW/glfwWindowHint GLFW/GLFW_RED_BITS     (.r       config))
+  (GLFW/glfwWindowHint GLFW/GLFW_GREEN_BITS   (.g       config))
+  (GLFW/glfwWindowHint GLFW/GLFW_BLUE_BITS    (.b       config))
+  (GLFW/glfwWindowHint GLFW/GLFW_ALPHA_BITS   (.a       config))
+  (GLFW/glfwWindowHint GLFW/GLFW_STENCIL_BITS (.stencil config))
+  (GLFW/glfwWindowHint GLFW/GLFW_DEPTH_BITS   (.depth   config))
+  (GLFW/glfwWindowHint GLFW/GLFW_SAMPLES      (.samples config))
+
+  (Lwjgl3Application/createGlfwWindow config sharedContextWindow))
+
 (defn- createWindow* [application window config sharedContext]
-  (let [windowHandle (Lwjgl3Application/createGlfwWindow config sharedContext)]
+  (let [windowHandle (createGlfwWindow config sharedContext)]
     (.create window windowHandle)
     (.setVisible window (.initialVisible config))
     (let [gl20 (.getGL20 (.getGraphics window))]

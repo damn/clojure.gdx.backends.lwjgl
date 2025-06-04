@@ -30,11 +30,11 @@ public class Lwjgl3WindowConfiguration {
 	int windowWidth = 640;
 	int windowHeight = 480;
 	int windowMinWidth = -1, windowMinHeight = -1, windowMaxWidth = -1, windowMaxHeight = -1;
-	boolean windowResizable = true;
+	public boolean windowResizable = true;
 	boolean windowDecorated = true;
-	boolean windowMaximized = false;
+	public boolean windowMaximized = false;
 	Lwjgl3Graphics.Lwjgl3Monitor maximizedMonitor;
-	boolean autoIconify = true;
+	public boolean autoIconify = true;
 	FileType windowIconFileType;
 	String[] windowIconPaths;
 	Lwjgl3WindowListener windowListener;

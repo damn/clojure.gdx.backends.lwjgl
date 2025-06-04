@@ -58,9 +58,9 @@ public class Lwjgl3ApplicationConfiguration extends Lwjgl3WindowConfiguration {
 	int gles30ContextMajorVersion = 3;
 	int gles30ContextMinorVersion = 2;
 
-	int r = 8, g = 8, b = 8, a = 8;
-	int depth = 16, stencil = 0;
-	int samples = 0;
+	public int r = 8, g = 8, b = 8, a = 8;
+	public int depth = 16, stencil = 0;
+	public int samples = 0;
 	boolean transparentFramebuffer;
 
 	int idleFPS = 60;
