@@ -1,5 +1,6 @@
 (ns clojure.gdx.backends.lwjgl
-  (:require [clojure.java.io :as io])
+  (:require [clojure.gdx.backends.lwjgl.audio :as audio]
+            [clojure.java.io :as io])
   (:import (com.badlogic.gdx ApplicationLogger
                              Gdx)
            (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
@@ -13,8 +14,6 @@
                                              Lwjgl3Net
                                              Lwjgl3WindowConfiguration
                                              Sync)
-           (com.badlogic.gdx.backends.lwjgl3.audio OpenALLwjgl3Audio)
-           (com.badlogic.gdx.backends.lwjgl3.audio.mock MockAudio)
            (com.badlogic.gdx.utils GdxNativesLoader
                                    SharedLibraryLoader
                                    Os)
@@ -243,11 +242,6 @@
     (set! Lwjgl3Application/glDebugCallback nil))
   (GLFW/glfwTerminate))
 
-(defn- createAudio [config]
-  (OpenALLwjgl3Audio. (.audioDeviceSimultaneousSources config)
-                      (.audioDeviceBufferCount         config)
-                      (.audioDeviceBufferSize          config)))
-
 (defn application [config listener]
   (let [config (configure-object (Lwjgl3ApplicationConfiguration.)
                                  config
@@ -263,12 +257,12 @@
         (set! (.title config) (.getSimpleName (class listener))))
       (set! Gdx/app application)
       (if (.disableAudio config)
-        (set! (.audio application) (MockAudio.))
+        (set! (.audio application) (audio/mock))
         (try
-         (set! (.audio application) (createAudio config))
+         (set! (.audio application) (audio/create config))
          (catch Throwable t
            (.log application "Lwjgl3Application" "Couldn't initialize audio, disabling audio" t)
-           (set! (.audio application) (MockAudio.)))))
+           (set! (.audio application) (audio/mock)))))
       (set! Gdx/audio (.audio application))
       (set! (.files application) (Lwjgl3Files.))
       (set! Gdx/files (.files application))
