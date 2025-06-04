@@ -250,7 +250,6 @@
     (.setVisible window (.initialVisible config))
     (let [gl20 (.getGL20 (.getGraphics window))]
       (dotimes [_ 2]
-        (println "Clearing window ..")
         (.glClearColor gl20
                        (.r (.initialBackgroundColor config))
                        (.g (.initialBackgroundColor config))
@@ -258,9 +257,7 @@
                        (.a (.initialBackgroundColor config)))
         (.glClear gl20 GL11/GL_COLOR_BUFFER_BIT)
         (GLFW/glfwSwapBuffers windowHandle)))
-    (println "(nil? (.currentWindow application)): " (nil? (.currentWindow application)))
     (when (.currentWindow application)
-      (println "makeCurrent ...")
       ; the call above to createGlfwWindow switches the OpenGL context to the newly created window,
       ; ensure that the invariant "currentWindow is the window with the current active OpenGL context" holds
       (.makeCurrent (.currentWindow application)))))
