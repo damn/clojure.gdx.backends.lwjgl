@@ -199,7 +199,7 @@ public class Lwjgl3Window implements Disposable {
 		this.tmpBuffer2 = BufferUtils.createIntBuffer(1);
 	}
 
-	void create (long windowHandle) {
+	public void create (long windowHandle) {
 		this.windowHandle = windowHandle;
 		this.input = application.createInput(this);
 		this.graphics = new Lwjgl3Graphics(this);
@@ -380,7 +380,7 @@ public class Lwjgl3Window implements Disposable {
 			maxHeight > -1 ? maxHeight : GLFW.GLFW_DONT_CARE);
 	}
 
-	Lwjgl3Graphics getGraphics () {
+	public Lwjgl3Graphics getGraphics () {
 		return graphics;
 	}
 

@@ -22,6 +22,7 @@
                      Toolkit)
            (org.lwjgl.glfw GLFW
                            GLFWErrorCallback)
+           (org.lwjgl.opengl GL11)
            (org.lwjgl.system Configuration)))
 
 (defn- display-mode->map [^Lwjgl3Graphics$Lwjgl3DisplayMode display-mode]
@@ -243,6 +244,27 @@
     (set! Lwjgl3Application/glDebugCallback nil))
   (GLFW/glfwTerminate))
 
+(defn- createWindow* [application window config sharedContext]
+  (let [windowHandle (Lwjgl3Application/createGlfwWindow config sharedContext)]
+    (.create window windowHandle)
+    (.setVisible window (.initialVisible config))
+    (let [gl20 (.getGL20 (.getGraphics window))]
+      (dotimes [_ 2]
+        (println "Clearing window ..")
+        (.glClearColor gl20
+                       (.r (.initialBackgroundColor config))
+                       (.g (.initialBackgroundColor config))
+                       (.b (.initialBackgroundColor config))
+                       (.a (.initialBackgroundColor config)))
+        (.glClear gl20 GL11/GL_COLOR_BUFFER_BIT)
+        (GLFW/glfwSwapBuffers windowHandle)))
+    (println "(nil? (.currentWindow application)): " (nil? (.currentWindow application)))
+    (when (.currentWindow application)
+      (println "makeCurrent ...")
+      ; the call above to createGlfwWindow switches the OpenGL context to the newly created window,
+      ; ensure that the invariant "currentWindow is the window with the current active OpenGL context" holds
+      (.makeCurrent (.currentWindow application)))))
+
 (defn- createWindow [application config listener sharedContext]
   (let [window (Lwjgl3Window. listener
                               (.lifecycleListeners application)
@@ -250,10 +272,10 @@
                               application)]
     (if (zero? sharedContext)
 			; the main window is created immediately
-      (.createWindow application window config sharedContext)
+      (createWindow* application window config sharedContext)
 			; creation of additional windows is deferred to avoid GL context trouble
       (.postRunnable application (fn []
-                                   (.createWindow application window config sharedContext)
+                                   (createWindow* application window config sharedContext)
                                    (.add (.windows application) window))))
     window))
 

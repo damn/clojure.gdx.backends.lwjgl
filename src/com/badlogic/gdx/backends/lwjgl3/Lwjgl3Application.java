@@ -315,26 +315,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		return new DefaultLwjgl3Input(window);
 	}
 
-	public void createWindow (Lwjgl3Window window, Lwjgl3ApplicationConfiguration config, long sharedContext) {
-		long windowHandle = createGlfwWindow(config, sharedContext);
-		window.create(windowHandle);
-		window.setVisible(config.initialVisible);
-
-		for (int i = 0; i < 2; i++) {
-			window.getGraphics().gl20.glClearColor(config.initialBackgroundColor.r, config.initialBackgroundColor.g,
-				config.initialBackgroundColor.b, config.initialBackgroundColor.a);
-			window.getGraphics().gl20.glClear(GL11.GL_COLOR_BUFFER_BIT);
-			GLFW.glfwSwapBuffers(windowHandle);
-		}
-
-		if (currentWindow != null) {
-			// the call above to createGlfwWindow switches the OpenGL context to the newly created window,
-			// ensure that the invariant "currentWindow is the window with the current active OpenGL context" holds
-			currentWindow.makeCurrent();
-		}
-	}
-
-	static long createGlfwWindow (Lwjgl3ApplicationConfiguration config, long sharedContextWindow) {
+	public static long createGlfwWindow (Lwjgl3ApplicationConfiguration config, long sharedContextWindow) {
 		GLFW.glfwDefaultWindowHints();
 		GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
 		GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, config.windowResizable ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
