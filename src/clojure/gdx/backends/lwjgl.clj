@@ -1,6 +1,9 @@
 (ns clojure.gdx.backends.lwjgl
   "Interop helpers for `com.badlogic.gdx.backends.lwjgl3` package.
 
+  # Rationale
+
+
   # Application Options
 
   | Key                | Description | Default value |
@@ -82,6 +85,7 @@
     :gl-emulation/gl31         Lwjgl3ApplicationConfiguration$GLEmulation/GL31
     :gl-emulation/gl32         Lwjgl3ApplicationConfiguration$GLEmulation/GL32))
 
+; https://javadoc.io/static/com.badlogicgames.gdx/gdx-backend-lwjgl3/1.13.1/com/badlogic/gdx/backends/lwjgl3/Lwjgl3WindowConfiguration.html
 (defn- set-window-config-key! [^Lwjgl3WindowConfiguration object k v]
   (case k
     :initial-visible? (.setInitialVisible object (boolean v))
@@ -108,7 +112,7 @@
     :window-listener (.setWindowListener object
                                          ; Lwjgl3WindowListener v
                                          )
-    :initial-background-color (.setInitialBackgroundColorer object #_(->munge-color v))
+    :initial-background-color (.setInitialBackgroundColor object v)
     :fullscreen-mode (.setFullscreenMode object (map->display-mode v))
     :title (.setTitle object (str v))
     :vsync? (.useVsync object (boolean v))))
