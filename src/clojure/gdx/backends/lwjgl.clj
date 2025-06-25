@@ -39,7 +39,9 @@
   | `:initial-background-color` | Sets the initial background color. Defaults to black.  | `` |
   | `:vsync?`                   | Sets whether to use vsync. This setting can be changed anytime at runtime via {@link Graphics#setVSync(boolean)}. For multi-window applications, only one (the main) window should enable vsync. Otherwise, every window will wait for the vertical blank on swap individually, effectively cutting the frame rate to (refreshRate / numberOfWindows). | `` |
   "
-  (:import (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
+  (:import (com.badlogic.gdx ApplicationListener
+                             Gdx)
+           (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application
                                              Lwjgl3Application$GLDebugMessageSeverity
                                              Lwjgl3ApplicationConfiguration
                                              Lwjgl3ApplicationConfiguration$GLEmulation
@@ -203,12 +205,64 @@
   []
   (map monitor->map (Lwjgl3ApplicationConfiguration/getMonitors)))
 
-(defn start-application!
-  "Starts a `com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application` with the given `com.badlogic.gdx.ApplicationListener` and config.
+(defn- proxy-listener [{:keys [create!
+                               dispose!
+                               render!
+                               resize!
+                               resume!
+                               pause!]}]
+  (reify ApplicationListener
+    (create [_]
+      (create! {:app      Gdx/app
+                :graphics Gdx/graphics
+                :audio    Gdx/audio
+                :input    Gdx/input
+                :files    Gdx/files
+                :net      Gdx/net
+                :gl       Gdx/gl
+                :gl20     Gdx/gl20
+                :gl30     Gdx/gl30
+                :gl31     Gdx/gl31
+                :gl32     Gdx/gl32}))
+    (dispose [_]
+      (dispose!))
+    (render [_]
+      (render!))
+    (resize [_ width height]
+      (resize! width height))
+    (resume [_]
+      (resume!))
+    (pause [_]
+      (pause!))))
 
-  Config can contain both application and window configuration options."
+(defn start-application!
+  "Starts a `com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application` with the given listener and config.
+
+  Listener is a map of functions:
+  ```
+    {:create! (fn [context])
+     :dispose! (fn [])}
+  ```
+
+  `context` is a map with the global static fields of `com.badlogic.gdx.Gdx`:
+
+  ```
+  {:app      Gdx/app
+   :graphics Gdx/graphics
+   :audio    Gdx/audio
+   :input    Gdx/input
+   :files    Gdx/files
+   :net      Gdx/net
+   :gl       Gdx/gl
+   :gl20     Gdx/gl20
+   :gl30     Gdx/gl30
+   :gl31     Gdx/gl31
+   :gl32     Gdx/gl32}
+  ```
+
+  `config` can contain both application and window configuration options as mentioned in the namespace docstrings."
   [config listener]
-  (Lwjgl3Application. listener
+  (Lwjgl3Application. (proxy-listener listener)
                       (let [obj (Lwjgl3ApplicationConfiguration.)]
                         (doseq [[k v] config]
                           (set-application-config-key! obj k v))
