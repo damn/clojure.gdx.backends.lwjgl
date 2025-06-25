@@ -211,6 +211,7 @@
                                resize!
                                resume!
                                pause!]}]
+  {:pre [create! dispose! render! resize! resume! pause!]}
   (reify ApplicationListener
     (create [_]
       (create! {:app      Gdx/app
@@ -240,8 +241,12 @@
 
   Listener is a map of functions:
   ```
-    {:create! (fn [context])
-     :dispose! (fn [])}
+    {:create!  (fn [context])
+     :dispose! (fn [])
+     :render!  (fn [])
+     :resize!  (fn [width height])
+     :resume!  (fn [])
+     :pause!   (fn [])}
   ```
 
   `context` is a map with the global static fields of `com.badlogic.gdx.Gdx`:
@@ -260,7 +265,7 @@
    :gl32     Gdx/gl32}
   ```
 
-  `config` can contain both application and window configuration options as mentioned in the namespace docstrings."
+  `config` can contain both application and window configuration options as mentioned in the namespace docs."
   [config listener]
   (Lwjgl3Application. (proxy-listener listener)
                       (let [obj (Lwjgl3ApplicationConfiguration.)]
