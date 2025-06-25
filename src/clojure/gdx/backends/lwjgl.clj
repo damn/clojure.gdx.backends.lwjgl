@@ -167,18 +167,6 @@
                               (->PrintStream (:debug-output-stream v))))
     (set-window-config-key! object k v)))
 
-(defn- create-application-config [config]
-  (let [obj (Lwjgl3ApplicationConfiguration.)]
-    (doseq [[k v] config]
-      (set-application-config-key! obj k v))
-    obj))
-
-(defn- create-window-config [config]
-  (let [obj (Lwjgl3WindowConfiguration.)]
-    (doseq [[k v] config]
-      (set-window-config-key! obj k v))
-    obj))
-
 (defn- k->gl-debug-message-severity [k]
   (case k
     :high         Lwjgl3Application$GLDebugMessageSeverity/HIGH
@@ -232,7 +220,10 @@
   Config can contain both application and window configuration options."
   [config listener]
   (Lwjgl3Application. listener
-                      (create-application-config config)))
+                      (let [obj (Lwjgl3ApplicationConfiguration.)]
+                        (doseq [[k v] config]
+                          (set-application-config-key! obj k v))
+                        obj)))
 
 (defn new-window
   "Creates a new `com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window` using the provided `com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener` listener and config.
@@ -243,7 +234,10 @@
   [application listener config]
   (Lwjgl3Application/.newWindow application
                                 listener
-                                (create-window-config config)))
+                                (let [obj (Lwjgl3WindowConfiguration.)]
+                                  (doseq [[k v] config]
+                                    (set-window-config-key! obj k v))
+                                  obj)))
 
 (defn set-gl-debug-message-control
   "Enables or disables GL debug messages for the specified severity level. Returns false if the severity level could not be set (e.g. the NOTIFICATION level is not supported by the ARB and AMD extensions). See `Lwjgl3ApplicationConfiguration.enableGLDebugOutput(boolean, PrintStream)`."
