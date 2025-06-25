@@ -1,10 +1,7 @@
 (ns clojure.gdx.backends.lwjgl
-  "Interop helpers for `com.badlogic.gdx.backends.lwjgl3` package.
+  "Clojure API for `com.badlogic.gdx.backends.lwjgl3`.
 
-  # Rationale
-
-
-  # Application Options
+  * Application Options
 
   | Key                | Description | Default value |
   | --------           | -------     | -------       |
@@ -22,7 +19,7 @@
   | `:hdpi-mode`    | Defines how HDPI monitors are handled. Operating systems may have a per-monitor HDPI scale setting. The operating system may report window width/height and mouse coordinates in a logical coordinate system at a lower resolution than the actual physical resolution. This setting allows you to specify whether you want to work in logical or raw pixel units. See `HdpiMode` for more information. Note that some OpenGL functions like `GL20.glViewport(int, int, int, int)` and `GL20.glScissor(int, int, int, int)` require raw pixel units. Use `HdpiUtils` to help with the conversion if `HdpiMode` is set to `HdpiMode.Logical.`   | `HdpiMode.Logical` |
   | `:gl-debug-output?`    | Enables use of OpenGL debug message callbacks. If not supported by the core GL driver (since GL 4.3), this uses the KHR_debug, ARB_debug_output or AMD_debug_output extension if available. By default, debug messages with NOTIFICATION severity are disabled to avoid log spam. You can call with System.err to output to the \"standard\" error output stream. Use [[set-gl-debug-message-control]] to enable or disable other severity debug levels.    | |
 
-  # Window Options
+  * Window Options
 
   | Key                         | Description | Default value |
   | ----------------------------| ----------  | ------------  |
@@ -142,20 +139,12 @@
     :foreground-fps (.setForegroundFPS object (int v))
     :pause-when-minimized? (.setPauseWhenMinimized object (boolean v))
     :pause-when-lost-focus? (.setPauseWhenLostFocus object (boolean v))
-
-
-
-
     ; String preferencesDirectory, Files.FileType preferencesFileType
-
-
     #_(defmethod set-option! :preferences [object _ v]
         (.setPreferencesConfig object
                                (str (:directory v))
                                ; com.badlogic.gdx.Files.FileType
                                (k->filetype (:filetype v))))
-
-
 
     ; com.badlogic.gdx.graphics.glutils.HdpiMode/ 'Logical' / 'Pixels'
     #_(defmethod set-option! :hdpi-mode [object _ v]
@@ -174,7 +163,7 @@
     :low          Lwjgl3Application$GLDebugMessageSeverity/LOW
     :notification Lwjgl3Application$GLDebugMessageSeverity/NOTIFICATION))
 
-(defn display-mode
+(defn display-mode!
   "The currently active display-mode of the primary or given monitor.
 
   Initializes GLFW if not initialized.
@@ -187,7 +176,7 @@
   ([]
    (display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayMode))))
 
-(defn display-modes
+(defn display-modes!
   "The available display-modes of the primary or given monitor.
 
   Initializes GLFW if not initialized."
@@ -196,7 +185,7 @@
   ([]
    (map display-mode->map (Lwjgl3ApplicationConfiguration/getDisplayModes))))
 
-(defn primary-monitor
+(defn primary-monitor!
   "The primary `Graphics.Monitor`.
 
   Initializes GLFW if not initialized.
@@ -207,14 +196,14 @@
   []
   (monitor->map (Lwjgl3ApplicationConfiguration/getPrimaryMonitor)))
 
-(defn monitors
+(defn monitors!
   "The connected `Graphics.Monitors`.
 
   Initializes GLFW if not initialized."
   []
   (map monitor->map (Lwjgl3ApplicationConfiguration/getMonitors)))
 
-(defn application
+(defn start-application!
   "Starts a `com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application` with the given `com.badlogic.gdx.ApplicationListener` and config.
 
   Config can contain both application and window configuration options."
@@ -225,7 +214,7 @@
                           (set-application-config-key! obj k v))
                         obj)))
 
-(defn new-window
+(defn new-window!
   "Creates a new `com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window` using the provided `com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener` listener and config.
 
   Config should contain only window options.
@@ -239,7 +228,7 @@
                                     (set-window-config-key! obj k v))
                                   obj)))
 
-(defn set-gl-debug-message-control
+(defn set-gl-debug-message-control!
   "Enables or disables GL debug messages for the specified severity level. Returns false if the severity level could not be set (e.g. the NOTIFICATION level is not supported by the ARB and AMD extensions). See `Lwjgl3ApplicationConfiguration.enableGLDebugOutput(boolean, PrintStream)`."
   [severity enabled?]
   (Lwjgl3Application/setGLDebugMessageControl (k->gl-debug-message-severity severity)
