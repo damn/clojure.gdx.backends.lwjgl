@@ -1,38 +1,43 @@
-# clojure.gdx.lwjgl
+# API docs:
 
-Clojure API for the libgdx lwjgl3 (desktop) backend
+https://damn.github.io/clojure.gdx.backends.lwjgl/
 
-# Features
+# 0. Do not set! global state, pass to create...
 
-* Configures GLFW correctly for MacOS so the JVM argument `-XstartOnFirstThread` does _not_ have to be set.
+-> option in Gdx not to pass global state? pass Gdx context as an object?
 
-* Option for setting taskbar-icon. This sets the dock-icon on mac and is not supported by the original library.
+-> what won't work ? SpriteBatch ?
 
-# Usage
+# 1. Do I have exposed all the API or am I hiding the library
+;= > look javadoc
 
-* First you need to import libgdx dependency, this library will only bring in the dependencies of the backend, with leiningen this would be:
+# 2. TODOS
 
-```clojure
-:repositories [["jitpack" "https://jitpack.io"]]
-:dependencies [[com.badlogicgames.gdx/gdx                   "1.13.0"]
-               [com.github.damn/clojure.gdx.backends.lwjgl3 "1.13.0-0.1"]]
-```
+* TODO: add set glfw-async or xStartOnFirstThread (see libgdx wiki, lwjgl glfw lib )
+    and hint those functions initialising GLFW (monitors, display-modes) ...
 
-* Then just start the application by passing the config parameters and the lifecycle object.
+* TODO what does it bring: openal, opengl, etc. ... ?
+    mp3s, OGG, wav
+    multi-window ?
+    cursor
+    files
+    net
+    graphics emulation ANGLE (extra lib has to get )
+    -> check all libraries depened on and list them here ( with icon ? & documentation ? )
+    e.g. OpenAL docs wiki link or website link
 
-```clojure
-(ns my.application
-  (:require [clojure.gdx.lwjgl :as lwjgl]))
+* what does this lib depend on (natives -? which ones alwyas? )
 
-(defn -main []
-  (lwjgl/start {:title "Hello World"
-                 :width 800
-                 :height 600
-                 :fps 60
-                 :taskbar-icon "icon.png"} ; optional
-                (reify lwjgl/Application
-                  (create [_])
-                  (dispose [_])
-                  (render [_])
-                  (resize [_ w h]))))
-```
+* config options ?
+
+* forgot cursor API
+
+* main loop synced ...
+
+* tests - from gdx ?
+
+* test win/linux
+
+* rewrite yourself its nothing -> can configure easier with load-deps ... even a visual tool
+
+* how to setup a hello world example -> example repo?
