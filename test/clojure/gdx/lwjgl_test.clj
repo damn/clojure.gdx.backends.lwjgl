@@ -1,17 +1,19 @@
 (ns clojure.gdx.lwjgl-test
   (:require [clojure.gdx.backends.lwjgl :as lwjgl])
-  (:import (com.badlogic.gdx.graphics Color)
+  (:import (com.badlogic.gdx ApplicationListener)
+           (com.badlogic.gdx.graphics Color)
            (com.badlogic.gdx.utils SharedLibraryLoader
                                    Os)
            (org.lwjgl.system Configuration)))
 
 (def empty-listener
-  {:create! (fn [])
-   :dispose! (fn [])
-   :render! (fn [])
-   :resize! (fn [width height])
-   :pause! (fn [])
-   :resume! (fn [])})
+  (reify ApplicationListener
+    (create [_])
+    (dispose [_])
+    (render [_])
+    (resize [_ width height])
+    (pause [_])
+    (resume [_])))
 
 (defn- empty-test []
   (lwjgl/start-application! empty-listener {}))
@@ -47,7 +49,7 @@
 (defn -main []
   (when (= SharedLibraryLoader/os Os/MacOsX)
     (.set Configuration/GLFW_LIBRARY_NAME "glfw_async"))
-  #_(empty-test)
-  (full-screen-test)
+  (empty-test)
+  #_(full-screen-test)
   #_(window-config-keys)
   )

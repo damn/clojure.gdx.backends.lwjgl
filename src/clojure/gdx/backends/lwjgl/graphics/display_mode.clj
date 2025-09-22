@@ -1,3 +1,4 @@
+; FIXME call GLFW fns yourself then no need to convert
 (ns clojure.gdx.backends.lwjgl.graphics.display-mode
   (:import (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Graphics$Lwjgl3DisplayMode)))
 

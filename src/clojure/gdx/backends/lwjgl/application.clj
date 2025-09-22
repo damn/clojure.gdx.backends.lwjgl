@@ -1,12 +1,11 @@
 (ns clojure.gdx.backends.lwjgl.application
-  (:require [clojure.gdx.application.listener :as listener]
-            [clojure.gdx.backends.lwjgl.application.configuration :as config]
+  (:require [clojure.gdx.backends.lwjgl.application.configuration :as config]
             [clojure.gdx.backends.lwjgl.application.gl-debug-message-severity :as gl-debug-message-severity]
             [clojure.gdx.backends.lwjgl.window.configuration :as window-config])
   (:import (com.badlogic.gdx.backends.lwjgl3 Lwjgl3Application)))
 
 (defn start! [listener config]
-  (Lwjgl3Application. (listener/create listener)
+  (Lwjgl3Application. listener
                       (config/create config)))
 
 (defn new-window! [application listener config]
